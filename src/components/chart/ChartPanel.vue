@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, ChevronUp, Download, RotateCw, X } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, Download, LoaderCircle, RotateCw, X } from 'lucide-vue-next'
 import { buildLines, toCsv, unitFor, type Mode } from '@/chart/datasets'
 import { chartPng, download, downloadCsv } from '@/chart/export'
 import { useChartStore } from '@/stores/chart'
@@ -140,12 +140,10 @@ function dragEnd(e: PointerEvent) {
     </div>
 
     <div class="body">
-      <div
-        v-if="chart.status === 'loading'"
-        class="skeleton"
-        :aria-label="t('chart.loading')"
-        role="status"
-      />
+      <div v-if="chart.status === 'loading'" class="loading" role="status">
+        <LoaderCircle :size="28" class="spinner" aria-hidden="true" />
+        <span>{{ t('chart.loading') }}</span>
+      </div>
       <div v-else-if="chart.status === 'error'" class="error" role="alert">
         <p>{{ t(`chart.errors.${chart.error}`) }}</p>
         <button
@@ -259,21 +257,37 @@ function dragEnd(e: PointerEvent) {
   flex: 1;
   min-height: 0;
 }
-.skeleton {
+.loading {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
   height: 100%;
   border-radius: var(--radius-sm);
-  background: linear-gradient(
-    90deg,
-    rgba(31, 42, 51, 0.05),
-    rgba(31, 42, 51, 0.1),
-    rgba(31, 42, 51, 0.05)
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.2s linear infinite;
+  background: rgba(31, 42, 51, 0.03);
+  color: var(--c-text-muted);
+  font-size: 13px;
+  /* fast (cached) series: no flash */
+  opacity: 0;
+  animation: appear 150ms ease 150ms forwards;
 }
-@keyframes shimmer {
+.spinner {
+  color: var(--c-accent);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes appear {
   to {
-    background-position: -200% 0;
+    opacity: 1;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
   }
 }
 .error {
