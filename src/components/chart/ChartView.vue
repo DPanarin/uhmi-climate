@@ -30,7 +30,6 @@ const props = defineProps<{
   decadeLabel: string
 }>()
 
-const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 // phones, low windows, landscape phones: a smaller legend leaves room for the plot
 const compact = window.matchMedia('(max-height: 500px), (max-width: 599px)').matches
 const lineRef = ref<{ chart?: Chart } | null>(null)
@@ -63,7 +62,9 @@ const years = computed(() => {
 const options = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  animation: reduced ? false : { duration: 200 },
+  // draw synchronously: animations wait for animation frames, and when frames are delayed the
+  // canvas stayed blank (or showed the previous place) until the next mouse move
+  animation: false,
   parsing: false,
   normalized: true,
   interaction: { mode: 'index', intersect: false },
