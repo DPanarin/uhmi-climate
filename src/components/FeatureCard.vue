@@ -69,8 +69,8 @@ const { t } = useI18n()
     left: var(--space-2);
     right: var(--space-2);
     width: auto;
-    /* above the legend strip */
-    bottom: calc(56px + env(safe-area-inset-bottom));
+    /* above the chip bar and the legend strip */
+    bottom: calc(120px + env(safe-area-inset-bottom));
   }
 }
 </style>

@@ -37,12 +37,13 @@ export function fillOpacity(s: Scale): ExpressionSpecification {
   ]
 }
 
-/** Legend ticks from start to end in steps (rounded against float drift). */
+/** Legend ticks in steps, with the ends snapped outwards to whole steps (−1.4…2.7 by 0.5 → −1.5…3). */
 export function legendTicks(start: number, end: number, step: number): number[] {
+  const r = (v: number) => Math.round(v * 100) / 100
+  const from = r(Math.floor(r(start / step)) * step)
+  const to = r(Math.ceil(r(end / step)) * step)
   const out: number[] = []
-  const n = Math.round((end - start) / step)
-  for (let i = 0; i <= n; i++) out.push(Math.round((start + i * step) * 100) / 100)
-  if (out[out.length - 1]! < end) out.push(Math.round((out[out.length - 1]! + step) * 100) / 100)
+  for (let i = 0; i <= Math.round((to - from) / step); i++) out.push(r(from + i * step))
   return out
 }
 

@@ -11,7 +11,7 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 | P2. Map data build | CP2 | done (OK 2026-10-06) | 2026-10-06 |
 | P3. App shell | CP3 | done (OK 2026-10-06) | 2026-10-06 |
 | P4. Map | CP3 | done (OK 2026-10-06) | 2026-10-06 |
-| P5. Controls modal | CP4 | in progress | 2026-10-06 |
+| P5. Controls modal | CP4 | waiting for OK | 2026-10-06 |
 | P6. Charts and API client | CP5 | not started | |
 | P7. Responsive and accessibility | CP6 | not started | |
 | P8. Performance | CP6 | not started | |
@@ -40,12 +40,16 @@ _(date — decision — reason)_
 - 2026-10-06 — P3/P4: default view as on the old site (temperature, RCP8.5, year, 2011–2020) with oblasts. A temporary select panel (`DevSwitcher.vue`) switches the view until the P5 dialog replaces it.
 - 2026-10-06 — User rule for the whole project: colours may be changed for better readability; report each change at the checkpoint.
 - 2026-10-06 — Readability (CP3): fill alpha = sqrt(|v| / max) × 0.9 instead of the old linear rule, so small anomalies stay visible; borders darker (rgba(33,40,46,0.85)) and slightly wider; legend labels 12 px, darker.
+- 2026-10-06 — P5: chip lives inside ControlsDialog (it is the dialog trigger, so focus returns to it); no separate ViewSummaryChip.vue. Dataset buttons show short names, the full name + period is a hint line below.
+- 2026-10-06 — P5: arrow keys select territory levels (radio-group convention); segmented controls activate with Enter/Space.
+- 2026-10-06 — P5: legend ends snap outwards to whole steps (observations −1.5…3 °C instead of −1.4…3.1).
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
 
 - Kyiv city has no hromada polygon in the source data (white hole at hromada level); same on the old site? Check at CP3.
 - Phone widths below ~555 px can't be checked by resizing the Chrome window; use DevTools device mode in P7.
+- Main JS is 405 KB gzip after P5 (target ≤ 400): lazy-load the dialog/search in P8.
 - MapLibre 6 ships its worker separately (511 KB raw), partly duplicating the main bundle — look at it in P8.
 - Known limitation: two precipitation stations named "Yampil"; the API keys stations by name, so "Yampil-2" (Cherkasy area) can't be addressed separately.
 - Old site's precipitation projection grid is labelled "grid 0.1x0.1°" (temperature: 0.11°) — label typo, same nodes.
@@ -60,3 +64,4 @@ _(date — phase — what was done)_
 - 2026-10-06 — P1 — `npm run data:extract`: finds chunks via index.html → app.js chunk map, downloads 22 files (71 MiB) with sha256 manifest (repeat run downloads nothing), acorn AST → JSON, signature classifier, config extraction (vizItem, ranges, legends, decade labels, getServerParams), validation report, 57 API smoke requests (all 200). Repeat run gives byte-identical GeoJSON. First `src/config/layers.ts` (12 layers, scales) and uk/en layer names. Unit tests for AST conversion and classifier.
 - 2026-10-06 — P2 — `npm run data:build`: 28 content-hashed files + `index.json` in `public/data/` (5 TopoJSON levels, 18 value files, 4 point files, search index with 2.3k entries). Values ↔ geometry join 100 %; 605,450 values identical to the source (max diff 0). Overlay SVGs in `data-raw/overlays/`, report in `data-raw/build-report.md`. Rebuild is byte-identical.
 - 2026-10-06 — P3+P4 — URL ↔ Pinia sync (replace-only, 150 ms debounce), view rules, data store (index.json, de-duplicated loads, stale loads aborted), MapLibre map with all 12 layers, feature-state colouring (old site's continuous rule), hover/selection, tooltip, legend, header with the institute's logos, PNG export, uk/en. Hromada recolour 0.8 ms. Checked in Chrome (dev + production preview): no console errors.
+- 2026-10-06 — P5 — Controls dialog (Reka UI): territory search (index on first focus, ranked, highlighted), dataset/variable/scenario/season toggles, level picker with reasons and loading state, decade slider, on-map decade stepper with play, stepper checkbox in localStorage, language, PNG export, About. Side panel ≥ 600 px, bottom sheet with swipe-down below. Temporary select panel removed.

@@ -2,7 +2,7 @@
 import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
-import DevSwitcher from '@/components/DevSwitcher.vue'
+import ControlsDialog from '@/components/controls/ControlsDialog.vue'
 import MapLegend from '@/components/MapLegend.vue'
 import MapView from '@/components/MapView.vue'
 import { useUrlSync } from '@/stores/url-sync'
@@ -27,7 +27,7 @@ watch(
   <AppHeader />
   <main class="screen">
     <MapView />
-    <DevSwitcher />
+    <ControlsDialog />
     <MapLegend />
   </main>
 </template>

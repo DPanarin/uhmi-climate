@@ -9,6 +9,7 @@ import { activeMap } from '@/map/use-export'
 import { featureName } from '@/map/feature-name'
 import { useDataStore } from '@/stores/data'
 import { useViewStore } from '@/stores/view'
+import { useUiStore } from '@/stores/ui'
 import { formatValue } from '@/i18n/format'
 import type { ValueFile } from '@/map/types'
 import FeatureCard from './FeatureCard.vue'
@@ -16,6 +17,7 @@ import FeatureCard from './FeatureCard.vue'
 const { t } = useI18n()
 const view = useViewStore()
 const data = useDataStore()
+const ui = useUiStore()
 
 const el = ref<HTMLElement>()
 const hover = ref<HoverInfo | null>(null)
@@ -68,6 +70,16 @@ async function render() {
   })
   recolor()
   ctl.select(view.state.place)
+  applyZoom()
+}
+
+/** Zoom requested by search: done once the feature's layer is on the map. */
+function applyZoom() {
+  const target = ui.zoomTarget
+  if (!ctl || !target || !ctl.has(target.id)) return
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ctl.zoomTo(target.bbox, padding(), !reduced)
+  ui.zoomTarget = null
 }
 
 const valueFile = computed(() =>
@@ -140,6 +152,7 @@ onMounted(async () => {
     () => view.state.place,
     (id) => ctl?.select(id),
   )
+  watch(() => ui.zoomTarget, applyZoom)
   watch(
     () => view.state.lang,
     (lang) => ctl?.setLabelField(lang),
@@ -167,7 +180,7 @@ onBeforeUnmount(() => {
     <p v-if="data.loading.size" class="status panel">{{ t('app.loading') }}</p>
     <p v-else-if="data.error" class="status panel error" role="alert">{{ t('app.loadError') }}</p>
     <FeatureCard
-      v-if="selected"
+      v-if="selected && !ui.dialogOpen"
       :name="selected.name"
       :value="selected.value"
       @close="view.set({ place: null })"

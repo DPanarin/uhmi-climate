@@ -29,11 +29,15 @@ describe('colour rule (old site, continuous)', () => {
 })
 
 describe('legendTicks', () => {
-  it('steps from start to end and covers the end', () => {
+  it('steps from start to end, snapped outwards to whole steps', () => {
     expect(legendTicks(-1, 3.5, 0.5)).toEqual([-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5])
     const t = legendTicks(-1, 6.4, 0.5)
     expect(t[0]).toBe(-1)
     expect(t[t.length - 1]).toBe(6.5)
-    expect(legendTicks(-35, 109, 10)).toHaveLength(16)
+    expect(legendTicks(-35, 109, 10)).toEqual([
+      -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110,
+    ])
+    expect(legendTicks(-1.4, 2.7, 0.5)[0]).toBe(-1.5)
+    expect(legendTicks(-1.4, 2.7, 0.5).slice(-1)).toEqual([3])
   })
 })
