@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useViewStore } from '@/stores/view'
 import { legendGradient, legendTicks } from '@/map/colors'
@@ -16,18 +16,34 @@ const gradient = computed(() => legendGradient(ticks.value, view.scale))
 const labelEvery = computed(() => Math.ceil(ticks.value.length / 9))
 const baseline = computed(() => view.dataset.baseline.replace('-', '–'))
 const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.value }))
+
+// publish the legend height so the phone chip bar can sit above it (expanded legend is taller)
+const box = ref<HTMLElement>()
+const root = document.documentElement.style
+const observer = new ResizeObserver(([e]) => {
+  root.setProperty('--legend-h', `${Math.ceil(e!.borderBoxSize[0]?.blockSize ?? 0)}px`)
+})
+watch(box, (el, old) => {
+  if (old) observer.unobserve(old)
+  if (el) observer.observe(el)
+})
+onBeforeUnmount(() => {
+  observer.disconnect()
+  root.removeProperty('--legend-h')
+})
 </script>
 
 <template>
   <section
     v-if="view.layer.kind === 'polygon'"
+    ref="box"
     class="legend panel"
     :class="{ expanded }"
     :aria-label="title"
     @click="expanded = !expanded"
   >
     <p class="title">{{ title }}</p>
-    <div class="bar" :style="{ background: gradient }" />
+    <div class="scale" :style="{ background: gradient }" />
     <ol class="ticks" aria-hidden="true">
       <li
         v-for="(tick, i) in ticks"
@@ -39,7 +55,7 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
       </li>
     </ol>
   </section>
-  <section v-else class="legend panel hint">{{ t('map.pointsHint') }}</section>
+  <section v-else ref="box" class="legend panel hint">{{ t('map.pointsHint') }}</section>
 </template>
 
 <style scoped>
@@ -57,7 +73,7 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
   font-size: 13px;
   font-weight: 600;
 }
-.bar {
+.scale {
   height: 12px;
   border-radius: var(--radius-xs);
   border: 1px solid var(--c-border);

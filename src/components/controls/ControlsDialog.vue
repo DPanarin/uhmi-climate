@@ -96,9 +96,10 @@ const summaryFull = computed(
   .bar {
     top: auto;
     left: 50%;
-    /* above the legend strip and the attribution */
-    bottom: calc(72px + env(safe-area-inset-bottom));
+    /* above the legend (30 px over the attribution, height published by MapLegend) */
+    bottom: calc(30px + var(--legend-h, 30px) + var(--space-3) + env(safe-area-inset-bottom));
     transform: translateX(-50%);
+    transition: bottom var(--ease);
     justify-content: center;
     width: calc(100vw - 2 * var(--space-2));
     max-width: none;
