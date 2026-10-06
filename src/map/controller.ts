@@ -162,6 +162,7 @@ export class MapController {
     this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
     this.fitControl = new FitControl(() => this.onFit(), '')
     this.map.addControl(this.fitControl, 'top-right')
+    this.map.on('resize', () => this.updateMinZoom())
     this.map.on('mousemove', (e) => this.handleMove(e))
     this.map.on('mouseout', () => this.setHover(null))
     this.map.on('click', (e) => {
@@ -194,8 +195,14 @@ export class MapController {
     animate = false,
   ) {
     this.map.fitBounds(UKRAINE_BOUNDS, { padding, animate })
-    // phones can't show all of Ukraine at zoom 5, so allow a bit less
-    this.map.setMinZoom(Math.min(MIN_ZOOM, Math.floor(this.map.getZoom() * 2) / 2 - 0.5))
+    this.updateMinZoom()
+  }
+
+  /** Zoom 5 at most, less where the screen is too small for all of Ukraine; again on every resize. */
+  private updateMinZoom() {
+    const fit = this.map.cameraForBounds(UKRAINE_BOUNDS, { padding: 20 })?.zoom
+    if (fit === undefined) return
+    this.map.setMinZoom(Math.max(1, Math.min(MIN_ZOOM, Math.floor(fit * 2) / 2 - 0.5)))
   }
 
   /** Replaces the feature layer (on level/dataset change only). */
