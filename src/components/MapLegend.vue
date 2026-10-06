@@ -54,7 +54,7 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
 }
 .title {
   margin: 0 0 var(--space-2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 .bar {
@@ -66,12 +66,13 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
 }
 .ticks {
   position: relative;
-  height: 16px;
+  height: 18px;
   margin: 2px 6px 0;
   padding: 0;
   list-style: none;
-  font-size: 11px;
-  color: var(--c-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #3a454e;
 }
 .ticks li {
   position: absolute;

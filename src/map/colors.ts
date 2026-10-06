@@ -1,5 +1,6 @@
-// Colour rule copied from the old site: not classed. Negative/positive colour with
-// alpha = |v| / max(|fill.min|, |fill.max|); Leaflet drew it with fillOpacity 0.9, so the same factor here.
+// Colour rule based on the old site: not classed; negative/positive colour with an alpha that grows with |v|.
+// Old site: alpha = |v| / max |range| (linear) × 0.9. Readability change (CP3): alpha = sqrt(|v| / max) × 0.9,
+// so small anomalies (early decades, observed precipitation) stay visible; 0 stays transparent.
 import type { ExpressionSpecification } from 'maplibre-gl'
 import type { Scale } from '@/config/layers'
 
@@ -11,7 +12,7 @@ export const intensityMax = (s: Scale) => Math.max(Math.abs(s.fill.min), Math.ab
 
 /** Alpha for a value, 0…FILL_OPACITY; 0 for exactly 0 (the old site left it transparent). */
 export function alphaFor(v: number, s: Scale): number {
-  return Math.min(1, Math.abs(v) / intensityMax(s)) * FILL_OPACITY
+  return Math.sqrt(Math.min(1, Math.abs(v) / intensityMax(s))) * FILL_OPACITY
 }
 
 export function colorFor(v: number | null, s: Scale): string {
@@ -31,7 +32,7 @@ export function fillOpacity(s: Scale): ExpressionSpecification {
   return [
     'case',
     HAS_V,
-    ['*', FILL_OPACITY, ['min', 1, ['/', ['abs', V], intensityMax(s)]]],
+    ['*', FILL_OPACITY, ['sqrt', ['min', 1, ['/', ['abs', V], intensityMax(s)]]]],
     NO_DATA_OPACITY,
   ]
 }

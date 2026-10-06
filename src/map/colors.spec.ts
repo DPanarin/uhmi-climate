@@ -6,9 +6,9 @@ const projT = SCALES.proj.tas
 const projP = SCALES.proj.pr
 
 describe('colour rule (old site, continuous)', () => {
-  it('scales alpha by |value| / max |range|', () => {
+  it('scales alpha by sqrt(|value| / max |range|)', () => {
     expect(intensityMax(projT)).toBe(6.4)
-    expect(alphaFor(3.2, projT)).toBeCloseTo(0.5 * FILL_OPACITY)
+    expect(alphaFor(1.6, projT)).toBeCloseTo(0.5 * FILL_OPACITY) // sqrt(0.25)
     expect(alphaFor(-6.4, projT)).toBeCloseTo(FILL_OPACITY)
     expect(alphaFor(10, projT)).toBeCloseTo(FILL_OPACITY) // capped
     expect(alphaFor(0, projT)).toBe(0)

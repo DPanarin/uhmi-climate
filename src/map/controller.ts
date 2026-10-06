@@ -140,18 +140,18 @@ export class MapController {
         type: 'line',
         source: SRC,
         paint: {
-          'line-color': ['case', selected, SELECTED, hover, INK, 'rgba(57, 61, 63, 0.7)'],
+          'line-color': ['case', selected, SELECTED, hover, INK, 'rgba(33, 40, 46, 0.85)'],
           // zoom must be the top-level input; state decides the width at each stop
           'line-width': [
             'interpolate',
             ['linear'],
             ['zoom'],
             5,
-            ['case', selected, 3.5, hover, 2.5, 0.5],
+            ['case', selected, 3.5, hover, 2.5, 0.6],
             8,
-            ['case', selected, 3.5, hover, 2.5, 1],
+            ['case', selected, 3.5, hover, 2.5, 1.1],
             11,
-            ['case', selected, 4, hover, 3, 1.5],
+            ['case', selected, 4, hover, 3, 1.6],
           ],
         },
       })

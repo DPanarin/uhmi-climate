@@ -9,9 +9,9 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 | P0. Project setup | CP0 | done (OK 2026-10-06) | 2026-10-06 |
 | P1. Data extraction | CP1 | done (OK 2026-10-06) | 2026-10-06 |
 | P2. Map data build | CP2 | done (OK 2026-10-06) | 2026-10-06 |
-| P3. App shell | CP3 | waiting for OK | 2026-10-06 |
-| P4. Map | CP3 | waiting for OK | 2026-10-06 |
-| P5. Controls modal | CP4 | not started | |
+| P3. App shell | CP3 | done (OK 2026-10-06) | 2026-10-06 |
+| P4. Map | CP3 | done (OK 2026-10-06) | 2026-10-06 |
+| P5. Controls modal | CP4 | in progress | 2026-10-06 |
 | P6. Charts and API client | CP5 | not started | |
 | P7. Responsive and accessibility | CP6 | not started | |
 | P8. Performance | CP6 | not started | |
@@ -39,6 +39,7 @@ _(date — decision — reason)_
 - 2026-10-06 — P4: station labels use self-hosted glyphs (Open Sans Semibold, Latin + Cyrillic ranges, from the MapLibre demo font set) in `public/fonts/`.
 - 2026-10-06 — P3/P4: default view as on the old site (temperature, RCP8.5, year, 2011–2020) with oblasts. A temporary select panel (`DevSwitcher.vue`) switches the view until the P5 dialog replaces it.
 - 2026-10-06 — User rule for the whole project: colours may be changed for better readability; report each change at the checkpoint.
+- 2026-10-06 — Readability (CP3): fill alpha = sqrt(|v| / max) × 0.9 instead of the old linear rule, so small anomalies stay visible; borders darker (rgba(33,40,46,0.85)) and slightly wider; legend labels 12 px, darker.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
