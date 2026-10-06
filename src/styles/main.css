@@ -120,6 +120,11 @@ button {
   width: 36px;
   height: 36px;
 }
+.maplibregl-ctrl-group button.fit-data {
+  display: grid;
+  place-items: center;
+  color: var(--c-text);
+}
 .maplibregl-ctrl-attrib.maplibregl-compact {
   border-radius: var(--radius);
 }

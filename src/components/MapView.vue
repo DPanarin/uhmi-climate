@@ -12,7 +12,8 @@ import { useI18n } from 'vue-i18n'
 import { feature as topoFeature } from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import type { Feature, FeatureCollection, Point } from 'geojson'
-import { MapController, type HoverInfo } from '@/map/controller'
+import { MapController, boundsOf, type Bounds, type HoverInfo } from '@/map/controller'
+import { UKRAINE_BOUNDS } from '@/config/map'
 import { activeMap } from '@/map/use-export'
 import { featureName } from '@/map/feature-name'
 import { useDataStore } from '@/stores/data'
@@ -41,7 +42,28 @@ const isPhone = () => window.matchMedia('(max-width: 599px)').matches
 
 function padding() {
   const header = isPhone() ? 48 : 60
-  return { top: header + 16, bottom: isPhone() ? 96 : 32, left: 16, right: 16 }
+  const pad = { top: header + 16, bottom: isPhone() ? 96 : 32, left: 16, right: 16 }
+  // keep the data out from under an open chart panel (a card on the right, a sheet on phones)
+  const panel = document.querySelector('.chart-panel')?.getBoundingClientRect()
+  if (panel && panel.width && el.value) {
+    const box = el.value.getBoundingClientRect()
+    if (isPhone() || panel.width > box.width * 0.8) {
+      // phones: everything stacked at the bottom (sheet, and the chip bar sitting on it)
+      const bar = document.querySelector('.bar')?.getBoundingClientRect()
+      const top = Math.min(panel.top, bar?.height ? bar.top : Infinity)
+      pad.bottom = Math.max(pad.bottom, box.bottom - top + 8)
+    } else pad.right = Math.max(pad.right, box.right - panel.left + 16)
+  }
+  return pad
+}
+
+/** Bounds of the data on screen (basins and the grid reach beyond Ukraine). */
+const dataBounds = shallowRef<Bounds | null>(null)
+
+function fitToData() {
+  if (!ctl) return
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ctl.fitTo(dataBounds.value ?? UKRAINE_BOUNDS, padding(), !reduced)
 }
 
 function toGeoJSON(logical: string, raw: unknown): FeatureCollection {
@@ -72,6 +94,7 @@ async function render() {
   if (token !== renderToken) return // a newer view won
   const fc = toGeoJSON(view.geometry, loaded[0])
   features.value = new Map(fc.features.map((f) => [String(f.properties?.id), f]))
+  dataBounds.value = boundsOf(fc)
   ctl.show({
     kind: view.layer.kind,
     data: fc,
@@ -162,6 +185,7 @@ onMounted(async () => {
   ctl = new MapController(el.value!, view.state.bm)
   ctl.onHover = (h) => (hover.value = h)
   ctl.onClick = (id) => view.set({ place: id })
+  ctl.onFit = fitToData
   await ctl.ready()
   activeMap.value = ctl.map
   // dev, or ?debug=1: inspect the map from the browser console (performance checks)
@@ -190,6 +214,7 @@ onMounted(async () => {
       ctl?.setLabelField(lang)
       // the canvas is announced as an image with this description
       ctl?.map.getCanvas().setAttribute('aria-label', t('map.label'))
+      ctl?.setFitLabel(t('map.fit'))
     },
     { immediate: true },
   )

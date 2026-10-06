@@ -38,6 +38,7 @@ const en: typeof uk = {
     label:
       'Climate change map. Choose a territory with the search in the settings or click on the map.',
     noData: 'no data',
+    fit: 'Fit all data on the map',
     pointsHint: 'Tap a point to see its series',
     chartSoon: 'The chart will appear here',
     close: 'Close',

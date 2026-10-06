@@ -67,6 +67,66 @@ const OUTLINES = 'outlines'
 
 maplibregl.setWorkerUrl(workerUrl)
 
+/** A button under + − (same control group style) that fits the map to the data shown. */
+class FitControl implements maplibregl.IControl {
+  private el: HTMLDivElement | null = null
+  private button: HTMLButtonElement | null = null
+  private onClick: () => void
+  private label: string
+  constructor(onClick: () => void, label: string) {
+    this.onClick = onClick
+    this.label = label
+  }
+  onAdd() {
+    this.el = document.createElement('div')
+    this.el.className = 'maplibregl-ctrl maplibregl-ctrl-group'
+    this.button = document.createElement('button')
+    this.button.type = 'button'
+    this.button.className = 'fit-data'
+    // lucide "maximize" icon
+    this.button.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>'
+    this.button.addEventListener('click', () => this.onClick())
+    this.setLabel(this.label)
+    this.el.appendChild(this.button)
+    return this.el
+  }
+  onRemove() {
+    this.el?.remove()
+    this.el = null
+  }
+  setLabel(label: string) {
+    this.label = label
+    this.button?.setAttribute('aria-label', label)
+    this.button?.setAttribute('title', label)
+  }
+}
+
+export type Bounds = [number, number, number, number]
+
+/** Bounding box of every coordinate in a FeatureCollection. */
+export function boundsOf(fc: FeatureCollection): Bounds | null {
+  let w = Infinity
+  let s = Infinity
+  let e = -Infinity
+  let n = -Infinity
+  const visit = (c: unknown): void => {
+    if (!Array.isArray(c)) return
+    if (typeof c[0] === 'number') {
+      const [x, y] = c as number[]
+      if (x! < w) w = x!
+      if (x! > e) e = x!
+      if (y! < s) s = y!
+      if (y! > n) n = y!
+      return
+    }
+    for (const child of c) visit(child)
+  }
+  for (const f of fc.features)
+    if (f.geometry && 'coordinates' in f.geometry) visit(f.geometry.coordinates)
+  return Number.isFinite(w) ? [w, s, e, n] : null
+}
+
 export class MapController {
   readonly map: maplibregl.Map
   private kind: ShowOptions['kind'] | null = null
@@ -75,6 +135,9 @@ export class MapController {
   private ids = new Set<string>()
   onHover: (info: HoverInfo | null) => void = () => {}
   onClick: (id: string | null) => void = () => {}
+  /** The fit button was pressed. */
+  onFit: () => void = () => {}
+  private fitControl: FitControl
 
   private basemap: BasemapId
 
@@ -97,6 +160,8 @@ export class MapController {
     this.map.touchZoomRotate.disableRotation()
     this.map.keyboard.disableRotation()
     this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    this.fitControl = new FitControl(() => this.onFit(), '')
+    this.map.addControl(this.fitControl, 'top-right')
     this.map.on('mousemove', (e) => this.handleMove(e))
     this.map.on('mouseout', () => this.setHover(null))
     this.map.on('click', (e) => {
@@ -299,6 +364,15 @@ export class MapController {
   valueOf(id: string): number | null {
     const s = this.map.getFeatureState({ source: SRC, id })
     return typeof s.v === 'number' ? s.v : null
+  }
+
+  setFitLabel(label: string) {
+    this.fitControl.setLabel(label)
+  }
+
+  /** Fits the map to bounds, leaving `padding` free for overlays. */
+  fitTo(bounds: Bounds, padding: maplibregl.PaddingOptions, animate = true) {
+    this.map.fitBounds(bounds, { padding, animate, maxZoom: 9 })
   }
 
   zoomTo(
