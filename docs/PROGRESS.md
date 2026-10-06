@@ -44,7 +44,7 @@ _(date — decision — reason)_
 - 2026-10-06 — P5: arrow keys select territory levels (radio-group convention); segmented controls activate with Enter/Space.
 - 2026-10-06 — P5: legend ends snap outwards to whole steps (observations −1.5…3 °C instead of −1.4…3.1).
 - 2026-10-06 — CP4 feedback: the old site's "Additional information" popup (citation rules, Euro-CORDEX sources, 32-model table, glossary) is required. Extracted from the bundle's compiled Vue render code by `scripts/extract/info.ts` (AST, tag whitelist, uk + en), published as `content/info-{uk,en}`, shown by an ⓘ button in the header and a link in the settings "About".
-- 2026-10-06 — Header as on the old site: UHMI emblem + "Український гідрометеорологічний інститут / ДСНС України та НАН України" (en: "Ukrainian Hydrometeorological Institute") │ lab mark + lab name; app title and ⓘ on the right. Tablet: emblems only; phone: institute emblem + title.
+- 2026-10-06 — Header (user request): app title on the left; on the right UHMI emblem + "Український гідрометеорологічний інститут / ДСНС України та НАН України" (en: "Ukrainian Hydrometeorological Institute / SES of Ukraine and NAS of Ukraine") │ lab mark + lab name (uk/en image), then ⓘ. All header text follows the UI language. Tablet: emblems only; phone: institute emblem + title.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues

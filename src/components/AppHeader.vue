@@ -8,36 +8,38 @@ import labLogo from '@/assets/logos/lab.svg'
 import labTextUk from '@/assets/logos/lab-text-uk.svg'
 import labTextEn from '@/assets/logos/lab-text-en.svg'
 
-// As on the old site: both organisations on the left, divided by a vertical line; the app title next.
+// App title on the left; both organisations on the right, divided by a vertical line; info button last.
 const { t, locale } = useI18n()
 const ui = useUiStore()
 </script>
 
 <template>
   <header class="header">
-    <div class="orgs">
-      <div class="org">
-        <img :src="uhmiLogo" alt="" class="logo" width="31" height="36" />
-        <span class="org-name">
-          <span>{{ t('app.institute') }}</span>
-          <span v-if="t('app.instituteSub')">{{ t('app.instituteSub') }}</span>
-        </span>
-      </div>
-      <span class="divider" aria-hidden="true" />
-      <div class="org lab">
-        <img :src="labLogo" alt="" class="logo" width="28" height="36" />
-        <img
-          :src="locale === 'en' ? labTextEn : labTextUk"
-          :alt="t('app.lab')"
-          class="lab-text"
-          height="22"
-        />
-      </div>
-    </div>
-
     <div class="brand">
       <img :src="climateIcon" alt="" class="icon" width="28" height="28" />
       <h1 class="title">{{ t('app.title') }}</h1>
+    </div>
+
+    <div class="end">
+      <div class="orgs">
+        <div class="org">
+          <img :src="uhmiLogo" alt="" class="logo" width="31" height="36" />
+          <span class="org-name">
+            <span>{{ t('app.institute') }}</span>
+            <span>{{ t('app.instituteSub') }}</span>
+          </span>
+        </div>
+        <span class="divider" aria-hidden="true" />
+        <div class="org lab">
+          <img :src="labLogo" alt="" class="logo" width="28" height="36" />
+          <img
+            :src="locale === 'en' ? labTextEn : labTextUk"
+            :alt="t('app.lab')"
+            class="lab-text"
+            height="22"
+          />
+        </div>
+      </div>
       <button
         type="button"
         class="info"
@@ -101,6 +103,12 @@ const ui = useUiStore()
   height: 22px;
   width: auto;
 }
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
 .brand {
   display: flex;
   align-items: center;
@@ -121,7 +129,6 @@ const ui = useUiStore()
   flex: none;
   width: 40px;
   height: 40px;
-  margin-left: var(--space-2);
   border: 1px solid var(--c-border);
   border-radius: 50%;
   background: var(--c-surface);
