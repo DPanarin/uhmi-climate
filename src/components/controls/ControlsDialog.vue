@@ -447,6 +447,7 @@ legend {
   flex: none;
   width: 22px;
   height: 22px;
+  padding: 0; /* reset the default button padding that pushed the tick out of the box */
   border: 1.5px solid var(--c-accent);
   border-radius: 5px;
   background: var(--c-surface);
@@ -455,6 +456,10 @@ legend {
 }
 .box[data-state='checked'] {
   background: var(--c-accent);
+}
+.box > * {
+  display: grid;
+  place-items: center;
 }
 .row {
   display: flex;
