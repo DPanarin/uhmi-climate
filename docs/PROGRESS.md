@@ -49,6 +49,8 @@ _(date — decision — reason)_
 - 2026-10-06 — P6: chart units: temperature °C; precipitation mm (absolute and observed anomalies), % for projection anomalies — as the API returns them.
 - 2026-10-06 — P6: map data now loads on MapLibre `style.load` instead of `load` (which waits for every basemap tile — up to ~9 s on large high-DPI screens).
 - 2026-10-06 — P6: Vite pre-bundles maplibre-gl, chart.js, vue-chartjs, the annotation plugin and topojson-client (runtime discovery re-optimised deps mid-session and broke the MapLibre worker until reload).
+- 2026-10-06 — Added at the user's request (after CP5): basemap choice as on the old site — CARTO light (default, old "Esri без позначень"), Visicom (TMS, no key needed), Esri World Topo — plus the "Річкові басейни" outline overlay (from the extracted basin-names set, `geo/basin-outlines`). Both in the URL (`bm`, `basins=1`), in the settings dialog, and in PNG credits. Attributions corrected (the old site credits "USGS, NOAA" on CARTO).
+- 2026-10-06 — Map readiness: wait for the style itself (`style._loaded`), not `load`/`isStyleLoaded()`, which also wait for basemap tiles and could miss the event with uncached tiles.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
@@ -56,6 +58,7 @@ _(date — decision — reason)_
 - Kyiv city has no hromada polygon in the source data (white hole at hromada level); same on the old site? Check at CP3.
 - Phone widths below ~555 px can't be checked by resizing the Chrome window; use DevTools device mode in P7.
 - Main JS is 434 KB gzip after P6 (target ≤ 400): Chart.js is already lazy (ChartView chunk); in P8 also lazy-load the dialog/search and the API client with zod.
+- First hromada draw ~10 s on the dev server at 2133 px / DPR 1.8 (geojson tiling in the worker); measure on the production build in P8.
 - MapLibre 6 ships its worker separately (511 KB raw), partly duplicating the main bundle — look at it in P8.
 - Known limitation: two precipitation stations named "Yampil"; the API keys stations by name, so "Yampil-2" (Cherkasy area) can't be addressed separately.
 - Old site's precipitation projection grid is labelled "grid 0.1x0.1°" (temperature: 0.11°) — label typo, same nodes.

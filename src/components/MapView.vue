@@ -73,6 +73,17 @@ async function render() {
   applyZoom()
 }
 
+/** River basin outlines (loaded on first use, kept above the climate layer). */
+async function showOutlines(on: boolean) {
+  if (!on) return ctl?.setOutlines(null)
+  try {
+    const raw = await data.load('geo/basin-outlines')
+    if (view.state.basins) ctl?.setOutlines(toGeoJSON('geo/basin-outlines', raw))
+  } catch {
+    // shown by the data store's error state
+  }
+}
+
 /** Zoom requested by search: done once the feature's layer is on the map. */
 function applyZoom() {
   const target = ui.zoomTarget
@@ -138,11 +149,13 @@ const selected = computed(() => {
 })
 
 onMounted(async () => {
-  ctl = new MapController(el.value!)
+  ctl = new MapController(el.value!, view.state.bm)
   ctl.onHover = (h) => (hover.value = h)
   ctl.onClick = (id) => view.set({ place: id })
   await ctl.ready()
   activeMap.value = ctl.map
+  // dev only: inspect the map from the browser console
+  if (import.meta.env.DEV) (window as unknown as { __map: unknown }).__map = ctl.map
   ctl.fitUkraine(padding())
   watch([() => view.geometry, () => view.values], render, { immediate: true })
   watch([() => view.scenarioKey, () => view.state.season, () => view.state.dec], recolor)
@@ -155,6 +168,12 @@ onMounted(async () => {
     (id) => ctl?.select(id),
   )
   watch(() => ui.zoomTarget, applyZoom)
+  watch(
+    () => view.state.bm,
+    (bm) => ctl?.setBasemap(bm),
+    { immediate: true },
+  )
+  watch(() => view.state.basins, showOutlines, { immediate: true })
   watch(
     () => view.state.lang,
     (lang) => ctl?.setLabelField(lang),

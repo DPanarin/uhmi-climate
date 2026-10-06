@@ -6,6 +6,7 @@ import { useViewStore } from '@/stores/view'
 import { colorFor, legendTicks } from './colors'
 import { exportPng } from './export-png'
 import { formatTick } from '@/i18n/format'
+import { BASEMAPS } from '@/config/map'
 
 /** The map on screen (set by MapView). */
 export const activeMap = shallowRef<MapLibreMap | null>(null)
@@ -43,7 +44,7 @@ export function useExportPng() {
           .filter((_, i) => i % every === 0 || i === ticks.length - 1)
           .map((x) => ({ offset: pos(x), text: formatTick(x, v.lang) })),
       }),
-      attribution: `${t('app.institute')} · © OpenStreetMap contributors © CARTO`,
+      attribution: `${t('app.institute')} · ${BASEMAPS[v.bm].credit}`,
       fileName: `uhmi-${v.ds}-${v.lvl}-${v.var}-${v.ds === 'proj' ? `${v.rcp}-` : ''}${v.season}-${v.dec}.png`,
     })
   }

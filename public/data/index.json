@@ -5,6 +5,7 @@
     "geo/rayons": "geo/rayons.dce4685c.topo.json",
     "geo/hromady": "geo/hromady.8290c29d.topo.json",
     "geo/basins": "geo/basins.46db2eec.topo.json",
+    "geo/basin-outlines": "geo/basin-outlines.e6f80de4.topo.json",
     "values/proj/ukraine/tas": "values/proj/ukraine/tas.299eac4b.json",
     "values/proj/ukraine/pr": "values/proj/ukraine/pr.c62d1f4d.json",
     "values/proj/oblasts/tas": "values/proj/oblasts/tas.03df0e15.json",

@@ -20,6 +20,8 @@ describe('URL ↔ view', () => {
       dec: '2041-2050',
       place: 'UA46060250000025047',
       lang: 'en',
+      bm: 'topo',
+      basins: true,
     }
     const q = toQuery(v)
     expect(q).toEqual({
@@ -31,6 +33,8 @@ describe('URL ↔ view', () => {
       dec: '2041-2050',
       place: 'UA46060250000025047',
       lang: 'en',
+      bm: 'topo',
+      basins: '1',
     })
     expect(viewFromQuery(q)).toEqual(v)
   })
@@ -38,6 +42,9 @@ describe('URL ↔ view', () => {
   it('omits empty place and the default language', () => {
     expect(toQuery(DEFAULT_VIEW)).not.toHaveProperty('place')
     expect(toQuery(DEFAULT_VIEW)).not.toHaveProperty('lang')
+    expect(toQuery(DEFAULT_VIEW)).not.toHaveProperty('bm')
+    expect(toQuery(DEFAULT_VIEW)).not.toHaveProperty('basins')
+    expect(parseQuery({ bm: 'satellite', basins: 'yes' })).toEqual({})
   })
 
   it('ignores unknown and malformed values', () => {

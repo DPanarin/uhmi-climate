@@ -12,7 +12,15 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import type { FeatureCollection } from 'geojson'
 import type { Scale } from '@/config/layers'
-import { BASEMAP, GLYPHS, LABEL_FONT, MAX_ZOOM, MIN_ZOOM, UKRAINE_BOUNDS } from '@/config/map'
+import {
+  BASEMAPS,
+  GLYPHS,
+  LABEL_FONT,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  UKRAINE_BOUNDS,
+  type BasemapId,
+} from '@/config/map'
 import { fillColor, fillOpacity } from './colors'
 
 const SRC = 'features'
@@ -34,22 +42,28 @@ export interface ShowOptions {
   labelField?: string
 }
 
-function baseStyle(): StyleSpecification {
+function rasterSource(id: BasemapId): maplibregl.RasterSourceSpecification {
+  const b = BASEMAPS[id]
+  return {
+    type: 'raster',
+    tiles: b.tiles,
+    tileSize: b.tileSize,
+    scheme: b.scheme ?? 'xyz',
+    attribution: b.attribution,
+    maxzoom: b.maxzoom,
+  }
+}
+
+function baseStyle(basemap: BasemapId): StyleSpecification {
   return {
     version: 8,
     glyphs: GLYPHS,
-    sources: {
-      basemap: {
-        type: 'raster',
-        tiles: BASEMAP.tiles,
-        tileSize: BASEMAP.tileSize,
-        attribution: BASEMAP.attribution,
-        maxzoom: 19,
-      },
-    },
+    sources: { basemap: rasterSource(basemap) },
     layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }],
   }
 }
+
+const OUTLINES = 'outlines'
 
 maplibregl.setWorkerUrl(workerUrl)
 
@@ -62,10 +76,13 @@ export class MapController {
   onHover: (info: HoverInfo | null) => void = () => {}
   onClick: (id: string | null) => void = () => {}
 
-  constructor(container: HTMLElement) {
+  private basemap: BasemapId
+
+  constructor(container: HTMLElement, basemap: BasemapId = 'carto') {
+    this.basemap = basemap
     this.map = new maplibregl.Map({
       container,
-      style: baseStyle(),
+      style: baseStyle(basemap),
       bounds: UKRAINE_BOUNDS,
       fitBoundsOptions: { padding: 20 },
       minZoom: MIN_ZOOM - 1,
@@ -88,10 +105,22 @@ export class MapController {
     })
   }
 
-  /** Resolves once the style is parsed — not on 'load', which also waits for every basemap tile. */
+  /**
+   * Resolves once the style is parsed. Not 'load' (waits for every basemap tile) and not isStyleLoaded()
+   * (also false while tiles load, after 'style.load' may already have fired), so check the style itself.
+   */
   ready(): Promise<void> {
-    if (this.map.isStyleLoaded()) return Promise.resolve()
-    return new Promise((r) => this.map.once('style.load', () => r()))
+    const parsed = () =>
+      (this.map as unknown as { style?: { _loaded?: boolean } }).style?._loaded === true
+    if (parsed()) return Promise.resolve()
+    return new Promise((resolve) => {
+      const timer = setInterval(() => parsed() && done(), 50)
+      const done = () => {
+        clearInterval(timer)
+        resolve()
+      }
+      this.map.once('style.load', done)
+    })
   }
 
   /** Fits Ukraine; `padding` leaves room for overlays (e.g. a bottom sheet on phones). */
@@ -123,19 +152,19 @@ export class MapController {
     const hover: maplibregl.ExpressionSpecification = ['boolean', ['feature-state', 'hover'], false]
 
     if (opts.kind === 'polygon') {
-      m.addLayer({
+      this.add({
         id: 'fill',
         type: 'fill',
         source: SRC,
         paint: { 'fill-color': fillColor(opts.scale), 'fill-opacity': fillOpacity(opts.scale) },
       })
-      m.addLayer({
+      this.add({
         id: 'line-casing',
         type: 'line',
         source: SRC,
         paint: { 'line-color': INK, 'line-width': ['case', selected, 6, 0] },
       })
-      m.addLayer({
+      this.add({
         id: 'line',
         type: 'line',
         source: SRC,
@@ -156,7 +185,7 @@ export class MapController {
         },
       })
     } else {
-      m.addLayer({
+      this.add({
         id: 'circle',
         type: 'circle',
         source: SRC,
@@ -178,7 +207,7 @@ export class MapController {
         },
       })
       if (opts.labelField) {
-        m.addLayer({
+        this.add({
           id: 'label',
           type: 'symbol',
           source: SRC,
@@ -197,6 +226,41 @@ export class MapController {
     }
     if (this.selectedId && this.ids.has(this.selectedId))
       this.setState(this.selectedId, { selected: true })
+  }
+
+  /** Adds a feature layer below the basin outlines (they stay on top across level changes). */
+  private add(layer: maplibregl.AddLayerObject) {
+    this.map.addLayer(layer, this.map.getLayer(`${OUTLINES}-line`) ? `${OUTLINES}-line` : undefined)
+  }
+
+  /** Swaps the raster basemap in place, under everything else. */
+  setBasemap(id: BasemapId) {
+    if (id === this.basemap) return
+    this.basemap = id
+    const m = this.map
+    m.removeLayer('basemap')
+    m.removeSource('basemap')
+    m.addSource('basemap', rasterSource(id))
+    m.addLayer({ id: 'basemap', type: 'raster', source: 'basemap' }, m.getStyle().layers[0]?.id)
+  }
+
+  /** River basin outlines over the map (old site's "Річкові басейни"); null removes them. */
+  setOutlines(data: FeatureCollection | null) {
+    const m = this.map
+    if (m.getLayer(`${OUTLINES}-line`)) m.removeLayer(`${OUTLINES}-line`)
+    if (m.getSource(OUTLINES)) m.removeSource(OUTLINES)
+    if (!data) return
+    m.addSource(OUTLINES, { type: 'geojson', data })
+    m.addLayer({
+      id: `${OUTLINES}-line`,
+      type: 'line',
+      source: OUTLINES,
+      paint: {
+        'line-color': '#0b4f8a',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 5, 1.5, 9, 3],
+        'line-dasharray': [3, 1.5],
+      },
+    })
   }
 
   setLabelField(field: string) {

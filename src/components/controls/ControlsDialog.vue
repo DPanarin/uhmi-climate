@@ -29,6 +29,7 @@ import { useViewStore } from '@/stores/view'
 import { useUiStore } from '@/stores/ui'
 import type { Lang } from '@/stores/view-rules'
 import { useExportPng } from '@/map/use-export'
+import { BASEMAP_IDS, type BasemapId } from '@/config/map'
 import SegmentedControl from './SegmentedControl.vue'
 import LevelPicker from './LevelPicker.vue'
 import DecadeSlider from './DecadeSlider.vue'
@@ -56,6 +57,17 @@ const variable = field('var')
 const rcp = field('rcp')
 const season = field('season')
 const lang = field('lang')
+const bm = computed({
+  get: () => view.state.bm,
+  set: (v: BasemapId) => view.set({ bm: v }),
+})
+const basins = computed({
+  get: () => view.state.basins,
+  set: (v: boolean) => view.set({ basins: v }),
+})
+const basemapOptions = computed(() =>
+  BASEMAP_IDS.map((b) => ({ value: b, label: t(`controls.basemaps.${b}`) })),
+)
 
 const datasetOptions = computed(() =>
   (['proj', 'obs'] as DatasetId[]).map((d) => ({
@@ -198,6 +210,21 @@ function dragEnd() {
           <fieldset>
             <legend>{{ t('view.decade') }}</legend>
             <DecadeSlider />
+          </fieldset>
+
+          <fieldset>
+            <legend>{{ t('controls.basemap') }}</legend>
+            <SegmentedControl
+              v-model="bm"
+              :options="basemapOptions"
+              :label="t('controls.basemap')"
+            />
+            <label class="check">
+              <CheckboxRoot v-model="basins" class="box">
+                <CheckboxIndicator><Check :size="16" /></CheckboxIndicator>
+              </CheckboxRoot>
+              {{ t('controls.basinOutlines') }}
+            </label>
           </fieldset>
 
           <fieldset>

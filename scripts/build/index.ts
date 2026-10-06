@@ -182,6 +182,17 @@ async function main() {
       )
   }
 
+  // ── river basin outlines (old site's "Річкові басейни" overlay) ──────────────
+  const outlines: FeatureCollection = {
+    type: 'FeatureCollection',
+    features: src.basinNames.features.map((f) => ({
+      type: 'Feature',
+      properties: { id: str(f.properties.ID), uk: txt(f.properties.Subbasin) || txt(f.properties.Basin) },
+      geometry: f.geometry,
+    })),
+  }
+  put('geo/basin-outlines', '.topo.json', await toTopoJSON(outlines, 'basin-outlines', '100%'))
+
   // ── values ─────────────────────────────────────────────────────────────────
   let compared = 0
   let maxDiff = 0

@@ -10,6 +10,7 @@ import {
   type Season,
   type VariableId,
 } from '@/config/layers'
+import { BASEMAP_IDS, type BasemapId } from '@/config/map'
 
 export type Lang = 'uk' | 'en'
 
@@ -22,6 +23,10 @@ export interface ViewState {
   dec: string
   place: string | null
   lang: Lang
+  /** Basemap. */
+  bm: BasemapId
+  /** River basin outlines over the map. */
+  basins: boolean
 }
 
 /** Defaults as on the old site: temperature, RCP8.5, annual, 2011–2020; oblasts as the first layer. */
@@ -34,6 +39,8 @@ export const DEFAULT_VIEW: ViewState = {
   dec: '2011-2020',
   place: null,
   lang: 'uk',
+  bm: 'carto',
+  basins: false,
 }
 
 type Query = Record<string, string | null | (string | null)[] | undefined>
@@ -61,6 +68,9 @@ export function parseQuery(q: Query): Partial<ViewState> {
   if (place) out.place = place
   const lang = oneOf(first(q.lang), ['uk', 'en'] as const)
   if (lang) out.lang = lang
+  const bm = oneOf(first(q.bm), BASEMAP_IDS)
+  if (bm) out.bm = bm
+  if (first(q.basins) === '1') out.basins = true
   return out
 }
 
@@ -75,6 +85,8 @@ export function toQuery(v: ViewState): Record<string, string> {
   }
   if (v.place) q.place = v.place
   if (v.lang !== 'uk') q.lang = v.lang
+  if (v.bm !== 'carto') q.bm = v.bm
+  if (v.basins) q.basins = '1'
   return q
 }
 
