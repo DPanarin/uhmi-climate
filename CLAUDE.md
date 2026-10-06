@@ -40,6 +40,7 @@ Waiting for your OK to start <next phase>.
   `github.com-corp` is the company key — never use either for this repo. Never push to an Innate Instruments account.
 - **Claude only commits; the user pushes and runs `npm run deploy` themselves** (HTTPS remote, signed in as DPanarin).
   Claude never runs `git push` or `npm run deploy`.
+- No Claude attribution anywhere in git: no `Co-Authored-By` trailers, no "Generated with Claude" lines.
 - API etiquette: smoke checks stay under ~100 sequential requests per run; no loops over all features.
 
 ## Commands
