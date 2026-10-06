@@ -2,6 +2,14 @@
 
 Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 
+## Resume here (2026-10-06)
+
+- **State:** P0–P9 done and committed locally (author DPanarin). **CP6 is waiting for the user's OK**: the user still has to do the Firefox pass (Responsive Design Mode at 360/768/1366/1440) and check on their own devices.
+- **Next:** P10 (Ukrainian presentation package, `docs/DEV_PLAN.md` § P10, incl. item 9: mobile view + shareable links must be presented). Before P10 the user pushes and runs `npm run deploy` so Lighthouse runs on https://dpanarin.github.io/uhmi-climate/ (Claude never pushes or deploys).
+- **Open user decisions:** none pending besides CP6. Title stays "Кліматичні зміни в Україні" (user, after CP4).
+- **Changes after CP5, all user requests, already done:** basemap choice + basin outlines, checkbox fix, one radius system, fit-to-data button.
+- **How to check:** dev server (user runs it) http://localhost:5173/uhmi-climate/; responsive page `/uhmi-climate/dev/viewports.html?w=360,768&q=<encoded app query>`; `?debug=1` → `window.__map`. Commands: `npm test`, `npm run lint`, `npm run type-check`, `npm run data:check`, `npm run build`.
+
 ## Status
 
 | Phase | Checkpoint | Status | Date |

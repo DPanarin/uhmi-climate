@@ -62,6 +62,19 @@ Waiting for your OK to start <next phase>.
 - Node 22. Global npm 10.9 crashes on install (arborist `edgesOut` bug); use `npx -y npm@11 install …` or upgrade npm.
 - Scaffolded by create-vue: Vite 8, Vue 3.5, Pinia 4, vue-router 5, Vitest 4, TypeScript 6, MapLibre GL 6.
 
+## Working notes (learned during P0–P9)
+
+- The user's Chrome window is maximised and can't be resized by Claude: check widths with `dev/viewports.html`
+  (dev-only; the app in iframes at 360/390/768/1024/1366/1440 and 844×390, reports horizontal scroll).
+- `?debug=1` (or the dev server) exposes the MapLibre map as `window.__map` (read in `src/debug.ts` at startup,
+  before the URL sync drops unknown parameters).
+- The dev server is slow on first load (map can take 10–15 s); production build ≈ 1.3 s. Don't mistake slowness for bugs.
+- Map readiness = style parsed (`style._loaded`), never `load`/`isStyleLoaded()` (they wait for basemap tiles).
+- Vite pre-bundles maplibre-gl, chart.js, vue-chartjs, chartjs-plugin-annotation, topojson-client (see vite.config.ts).
+- Never evaluate code from the old site's bundles; parse with acorn only (also in exploration).
+- Prettier reformats files; after it runs, patch by reading the file first (string replacements may miss).
+- API smoke checks: only via `npm run data:extract` (57 requests) or `scripts/record-fixtures.ts` (14); no loops.
+
 ## Conventions
 
 - Vue 3 Composition API with `<script setup lang="ts">`, TypeScript strict.

@@ -345,9 +345,14 @@ Main rule: no element is wider than the viewport. Checked by hand in Chrome (Dev
 3. **Lighthouse, once, on the deployed app:** mobile and desktop profiles, clean cache, for both the old site and github.io. One “було / стало” table: first-visit bytes, LCP, TBT, Performance and Accessibility scores, plus JS heap and hromada recolour time measured in Chrome.
 4. **Deck of 8–10 slides** (PDF and PPTX): what was wrong → what was done → before / after in numbers → demo → what to improve in the API → next steps.
 5. **Screenshot pairs** old / new at 390, 1366 and 1440 px.
-6. **3–5 minute demo script** with speaker notes: link with a ready view → hromada search → decade animation to 2100 → chart → the same on a phone. Plus a backup screen recording in case the network fails.
+6. **3–5 minute demo script** with speaker notes: link with a ready view → hromada search → decade animation to 2100 → chart → copy the link and open it on a phone (shareable link + mobile view, see item 9). Plus a backup screen recording in case the network fails.
 7. **“Що покращити в API” slide:** gzip, `Cache-Control`, 404 instead of 500, sorted series, numbers instead of strings, `exp` check and key rotation, OpenAPI, an endpoint with map values (it would make the extraction script unnecessary).
 8. **Handover:** README and data-pipeline notes in Ukrainian, decision list (why MapLibre, why data outside the bundle), links to the repo and github.io.
+9. **Must be presented (user request, 2026-10-06)** — each gets its own slide and a step in the demo script:
+   - **Fully functional mobile view:** the same features on a phone as on desktop — bottom-sheet settings with territory search, chart as a bottom sheet (drag to expand), on-map decade stepper, legend strip, fit-to-data button; show it live on a real phone (github.io) plus phone screenshots (360/390 px).
+   - **Shareable direct links with the selected data:** every view lives in the URL (dataset, territory level, variable, scenario, season, decade, selected territory with its chart, language, basemap, basin outlines), so a link sent to a colleague opens exactly the same map and chart; demo: build a view → copy the link → open it on the phone / in another browser. Contrast with the old site, where every view has to be clicked together again.
+
+Additions since the plan was written, also worth a line in the deck: "Additional information" (citation, sources, model table, glossary) carried over from the old site, basemap choice + river basin outlines, CSV/PNG export of charts and the map, readability changes (colour curve, borders, one radius system).
 
 **Done when (CP7):** the user has read the package and run the demo script; ready to show to the institute.
 
