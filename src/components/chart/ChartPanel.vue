@@ -7,6 +7,7 @@ import { chartPng, download, downloadCsv } from '@/chart/export'
 import { useChartStore } from '@/stores/chart'
 import { useViewStore } from '@/stores/view'
 import SegmentedControl from '@/components/controls/SegmentedControl.vue'
+import { track } from '@/analytics'
 
 // Chart.js loads with this chunk, on the first click only.
 const ChartView = defineAsyncComponent(() => import('./ChartView.vue'))
@@ -23,7 +24,10 @@ const expanded = ref(false)
 // Re-fetch only when the series can change; scenario and decade are already in the response.
 watch(
   () => [view.layer.id, props.place, view.state.var, view.state.season] as const,
-  () => void chart.load(view.layer, props.place, view.state),
+  () => {
+    void chart.load(view.layer, props.place, view.state)
+    track('place_open', { layer: view.layer.id, place: props.place })
+  },
   { immediate: true },
 )
 onBeforeUnmount(() => chart.clear())
@@ -77,9 +81,11 @@ const fileBase = computed(() =>
 )
 
 function exportCsv() {
+  track('export', { kind: 'chart-csv' })
   downloadCsv(`${fileBase.value}.csv`, toCsv(lines.value, unit.value))
 }
 function exportPng() {
+  track('export', { kind: 'chart-png' })
   const canvas = chartView.value?.canvas()
   if (canvas)
     download(
@@ -290,7 +296,7 @@ function dragEnd(e: PointerEvent) {
 }
 .note {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--c-text-muted);
 }
 .exports {
@@ -314,6 +320,28 @@ function dragEnd(e: PointerEvent) {
 .action:disabled {
   opacity: 0.4;
   cursor: default;
+}
+/* tablets: beside the legend (260 px) */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .chart-panel {
+    width: calc(100vw - 260px - 3 * var(--space-4));
+  }
+}
+/* low windows and landscape phones: a full-height side panel on the right */
+@media (min-width: 600px) and (max-height: 500px) {
+  .chart-panel {
+    top: calc(var(--header-h) + var(--space-2));
+    bottom: var(--space-2);
+    right: var(--space-2);
+    width: min(520px, 62vw);
+    height: auto;
+  }
+  .note {
+    display: none;
+  }
+  .toggles {
+    margin: var(--space-1) 0;
+  }
 }
 /* phones: bottom sheet at half height, expands to 90 dvh */
 @media (max-width: 599px) {

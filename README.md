@@ -11,6 +11,7 @@ Prototype rebuild of [climate.uhmi.org.ua](https://climate.uhmi.org.ua/) on Vue 
 npm install
 cp .env.example .env.local   # fill in VITE_API_KEY (never commit it)
 npm run dev                  # http://localhost:5173/uhmi-climate/
+# responsive check (dev only): http://localhost:5173/uhmi-climate/dev/viewports.html
 ```
 
 ## Commands
@@ -22,4 +23,5 @@ npm run dev                  # http://localhost:5173/uhmi-climate/
 | `npm run lint` | oxlint + ESLint + Prettier check |
 | `npm run data:extract` | P1: extract map data from the old site |
 | `npm run data:build` | P2: build map data into `public/data/` |
+| `npm run data:check` | P9: value parity, built files vs extracted source |
 | `npm run deploy` | build and publish `dist/` to the `gh-pages` branch |

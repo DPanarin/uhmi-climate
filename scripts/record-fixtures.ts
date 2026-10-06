@@ -14,18 +14,117 @@ const KEY = env.VITE_API_KEY
 if (!KEY) throw new Error('VITE_API_KEY missing in .env.local')
 
 const cases: { name: string; path: string; q: [string, string][] }[] = [
-  { name: 'proj-ukraine-tas', path: 'projections', q: [['kind', 'Ukraine'], ['place', 'Ukraine'], ['value_type', 'tas']] },
-  { name: 'proj-oblasts-tas', path: 'projections', q: [['kind', 'oblasts'], ['place', 'Kyivska'], ['value_type', 'tas']] },
-  { name: 'proj-rayons-pr-summer', path: 'projections', q: [['kind', 'rayons'], ['place', 'UA46060000000042587'], ['value_type', 'pr'], ['season', 'summer']] },
-  { name: 'proj-terhromads-tas', path: 'projections', q: [['kind', 'terhromads'], ['place', 'UA46060250000025047'], ['value_type', 'tas']] },
-  { name: 'proj-basins-pr', path: 'projections', q: [['kind', 'basins'], ['place', 'Desna River Basin'], ['value_type', 'pr']] },
-  { name: 'proj-nodes-tas', path: 'projections', q: [['kind', 'nodes'], ['place', '3458'], ['value_type', 'tas']] },
-  { name: 'obs-ukraine-tm', path: 'historical_observations', q: [['kind', 'Ukraine'], ['place', 'Ukraine'], ['value_type', 'tm']] },
-  { name: 'obs-oblasts-tx-winter', path: 'historical_observations', q: [['kind', 'oblasts'], ['place', 'Kyivska'], ['value_type', 'tx'], ['season', 'winter']] },
-  { name: 'obs-rayons-rr', path: 'historical_observations', q: [['kind', 'rayons'], ['place', 'UA46060000000042587'], ['value_type', 'rr']] },
-  { name: 'obs-terhromads-tn', path: 'historical_observations', q: [['kind', 'terhromads'], ['place', 'UA46060250000025047'], ['value_type', 'tn']] },
-  { name: 'obs-nodes-rr-summer', path: 'historical_observations', q: [['kind', 'nodes'], ['place', '7076'], ['value_type', 'rr'], ['season', 'summer']] },
-  { name: 'obs-meteostations-tm', path: 'historical_observations', q: [['kind', 'meteostations'], ['place', 'Kyiv'], ['value_type', 'tm']] },
+  {
+    name: 'proj-ukraine-tas',
+    path: 'projections',
+    q: [
+      ['kind', 'Ukraine'],
+      ['place', 'Ukraine'],
+      ['value_type', 'tas'],
+    ],
+  },
+  {
+    name: 'proj-oblasts-tas',
+    path: 'projections',
+    q: [
+      ['kind', 'oblasts'],
+      ['place', 'Kyivska'],
+      ['value_type', 'tas'],
+    ],
+  },
+  {
+    name: 'proj-rayons-pr-summer',
+    path: 'projections',
+    q: [
+      ['kind', 'rayons'],
+      ['place', 'UA46060000000042587'],
+      ['value_type', 'pr'],
+      ['season', 'summer'],
+    ],
+  },
+  {
+    name: 'proj-terhromads-tas',
+    path: 'projections',
+    q: [
+      ['kind', 'terhromads'],
+      ['place', 'UA46060250000025047'],
+      ['value_type', 'tas'],
+    ],
+  },
+  {
+    name: 'proj-basins-pr',
+    path: 'projections',
+    q: [
+      ['kind', 'basins'],
+      ['place', 'Desna River Basin'],
+      ['value_type', 'pr'],
+    ],
+  },
+  {
+    name: 'proj-nodes-tas',
+    path: 'projections',
+    q: [
+      ['kind', 'nodes'],
+      ['place', '3458'],
+      ['value_type', 'tas'],
+    ],
+  },
+  {
+    name: 'obs-ukraine-tm',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'Ukraine'],
+      ['place', 'Ukraine'],
+      ['value_type', 'tm'],
+    ],
+  },
+  {
+    name: 'obs-oblasts-tx-winter',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'oblasts'],
+      ['place', 'Kyivska'],
+      ['value_type', 'tx'],
+      ['season', 'winter'],
+    ],
+  },
+  {
+    name: 'obs-rayons-rr',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'rayons'],
+      ['place', 'UA46060000000042587'],
+      ['value_type', 'rr'],
+    ],
+  },
+  {
+    name: 'obs-terhromads-tn',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'terhromads'],
+      ['place', 'UA46060250000025047'],
+      ['value_type', 'tn'],
+    ],
+  },
+  {
+    name: 'obs-nodes-rr-summer',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'nodes'],
+      ['place', '7076'],
+      ['value_type', 'rr'],
+      ['season', 'summer'],
+    ],
+  },
+  {
+    name: 'obs-meteostations-tm',
+    path: 'historical_observations',
+    q: [
+      ['kind', 'meteostations'],
+      ['place', 'Kyiv'],
+      ['value_type', 'tm'],
+    ],
+  },
 ]
 
 for (const c of cases) {
@@ -52,5 +151,7 @@ for (const [name, path, q] of [
 ] as const) {
   const res = await fetch(`${API}${path}?${q}&key=${encodeURIComponent(KEY)}`)
   const text = await res.text()
-  console.log(`${name}: ${res.status} ${res.headers.get('content-type')} ${JSON.stringify(text.slice(0, 120))}`)
+  console.log(
+    `${name}: ${res.status} ${res.headers.get('content-type')} ${JSON.stringify(text.slice(0, 120))}`,
+  )
 }

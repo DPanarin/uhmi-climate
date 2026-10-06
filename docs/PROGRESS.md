@@ -12,10 +12,10 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 | P3. App shell | CP3 | done (OK 2026-10-06) | 2026-10-06 |
 | P4. Map | CP3 | done (OK 2026-10-06) | 2026-10-06 |
 | P5. Controls modal | CP4 | done (OK 2026-10-06) | 2026-10-06 |
-| P6. Charts and API client | CP5 | waiting for OK | 2026-10-06 |
-| P7. Responsive and accessibility | CP6 | not started | |
-| P8. Performance | CP6 | not started | |
-| P9. Unit tests and data parity | CP6 | not started | |
+| P6. Charts and API client | CP5 | done (OK 2026-10-06) | 2026-10-06 |
+| P7. Responsive and accessibility | CP6 | waiting for OK | 2026-10-06 |
+| P8. Performance | CP6 | waiting for OK | 2026-10-06 |
+| P9. Unit tests and data parity | CP6 | waiting for OK | 2026-10-06 |
 | P10. Presentation package (Ukrainian) | CP7 | not started | |
 
 ## Decisions taken during implementation
@@ -51,14 +51,19 @@ _(date — decision — reason)_
 - 2026-10-06 — P6: Vite pre-bundles maplibre-gl, chart.js, vue-chartjs, the annotation plugin and topojson-client (runtime discovery re-optimised deps mid-session and broke the MapLibre worker until reload).
 - 2026-10-06 — Added at the user's request (after CP5): basemap choice as on the old site — CARTO light (default, old "Esri без позначень"), Visicom (TMS, no key needed), Esri World Topo — plus the "Річкові басейни" outline overlay (from the extracted basin-names set, `geo/basin-outlines`). Both in the URL (`bm`, `basins=1`), in the settings dialog, and in PNG credits. Attributions corrected (the old site credits "USGS, NOAA" on CARTO).
 - 2026-10-06 — Map readiness: wait for the style itself (`style._loaded`), not `load`/`isStyleLoaded()`, which also wait for basemap tiles and could miss the event with uncached tiles.
+- 2026-10-06 — P7: responsive checks run in Chrome through `dev/viewports.html` (dev-only page, the app in iframes at 360/390/768/1024/1366/1440 and 844×390 landscape) because the maximised Chrome window cannot be resized; Firefox pass done by the user.
+- 2026-10-06 — P7: tablets (600–1023 px): legend 260 px, chart card beside it; low windows / landscape phones (≤ 500 px tall): chart as a full-height side panel, compact chart legend; phones: chip + stepper sit above the chart sheet, legend strip above the map attribution; min zoom 3 so a 360 px phone fits all of Ukraine.
+- 2026-10-06 — P8: lazy chunks — chart panel + API client + zod (26 KB), Chart.js view (71 KB), settings panel (27 KB), info dialog, English dictionary, map PNG export, gtag adapter. Font: Inter variable, Latin + Cyrillic woff2 (65 KB), preloaded, `font-display: swap`. Favicon: the climate icon (was create-vue's).
+- 2026-10-06 — P8: `?debug=1` exposes the map as `window.__map` (also on github.io) for performance checks.
+- 2026-10-06 — P9: `npm run data:check` samples 50 features round-robin over all 18 value files × 5 random combinations (250 values, tolerance 0.005); `data:build` already compares all 605,450 values.
+- 2026-10-06 — P9: visual colour parity with the old site is no longer 1:1 by design (CP3 readability change to a square-root curve); value parity is covered by data:check.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
 
 - Kyiv city has no hromada polygon in the source data (white hole at hromada level); same on the old site? Check at CP3.
-- Phone widths below ~555 px can't be checked by resizing the Chrome window; use DevTools device mode in P7.
-- Main JS is 434 KB gzip after P6 (target ≤ 400): Chart.js is already lazy (ChartView chunk); in P8 also lazy-load the dialog/search and the API client with zod.
-- First hromada draw ~10 s on the dev server at 2133 px / DPR 1.8 (geojson tiling in the worker); measure on the production build in P8.
+- First-visit JS: 359 KB main (target ≤ 400) + 142 KB MapLibre worker = 501 KB. The worker is MapLibre's own (it was inlined in MapLibre 5); no way to share code between page and worker. Total first visit ≈ 620 KB (target ≤ 700), first-screen data 25 KB (≤ 100).
+- Hromada first draw: ~1.3 s on the production build (localhost, warm cache) vs ~10 s on the dev server; recolour of 1779 features 1.2 ms. Cold-cache numbers come with Lighthouse on github.io in P10.
 - MapLibre 6 ships its worker separately (511 KB raw), partly duplicating the main bundle — look at it in P8.
 - Known limitation: two precipitation stations named "Yampil"; the API keys stations by name, so "Yampil-2" (Cherkasy area) can't be addressed separately.
 - Old site's precipitation projection grid is labelled "grid 0.1x0.1°" (temperature: 0.11°) — label typo, same nodes.
@@ -75,3 +80,4 @@ _(date — phase — what was done)_
 - 2026-10-06 — P3+P4 — URL ↔ Pinia sync (replace-only, 150 ms debounce), view rules, data store (index.json, de-duplicated loads, stale loads aborted), MapLibre map with all 12 layers, feature-state colouring (old site's continuous rule), hover/selection, tooltip, legend, header with the institute's logos, PNG export, uk/en. Hromada recolour 0.8 ms. Checked in Chrome (dev + production preview): no console errors.
 - 2026-10-06 — P5 — Controls dialog (Reka UI): territory search (index on first focus, ranked, highlighted), dataset/variable/scenario/season toggles, level picker with reasons and loading state, decade slider, on-map decade stepper with play, stepper checkbox in localStorage, language, PNG export, About. Side panel ≥ 600 px, bottom sheet with swipe-down below. Temporary select panel removed.
 - 2026-10-06 — P6 — API client (request builder for all 12 layers, zod parsing, sort, reshape to hist/rcp45/rcp85, LRU + sessionStorage cache, merged in-flight, abort, 10 s timeout, one retry for network/502/503, 500 → "no series"), 12 recorded fixtures, chart panel (Chart.js lazily loaded): ensemble means + band, observations, tm/tn/tx for observed temperature, selected decade band, values/change and yearly/moving toggles, CSV + PNG export, skeleton and error states, phone bottom sheet. Hromada "state territories" (None_*) get no "community" suffix.
+- 2026-10-06 — P7–P9 — responsive fixes at all widths incl. landscape phones, map canvas label, lazy loading of everything not on the first screen, Inter font, analytics hook (off), favicon, `npm run data:check`, dev viewport page. 75 unit tests, data:check 250/250, build within targets except the MapLibre worker (see open issues).

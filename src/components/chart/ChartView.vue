@@ -31,6 +31,8 @@ const props = defineProps<{
 }>()
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// phones, low windows, landscape phones: a smaller legend leaves room for the plot
+const compact = window.matchMedia('(max-height: 500px), (max-width: 599px)').matches
 const lineRef = ref<{ chart?: Chart } | null>(null)
 
 const alpha = (hex: string, a: number) => {
@@ -88,9 +90,10 @@ const options = computed<ChartOptions<'line'>>(() => ({
     legend: {
       position: 'bottom',
       labels: {
-        boxWidth: 14,
+        boxWidth: compact ? 10 : 14,
         boxHeight: 3,
-        font: { size: 12 },
+        padding: compact ? 4 : 10,
+        font: { size: compact ? 10 : 12 },
         filter: (item) => !props.lines[item.datasetIndex ?? 0]?.hideInLegend,
       },
     },
@@ -147,6 +150,6 @@ defineExpose({
 .chart-box {
   position: relative;
   height: 100%;
-  min-height: 180px;
+  min-height: 120px;
 }
 </style>

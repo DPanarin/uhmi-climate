@@ -15,6 +15,7 @@ import { search, type SearchEntry } from '@/search/search'
 import { useDataStore } from '@/stores/data'
 import { useViewStore } from '@/stores/view'
 import { useUiStore } from '@/stores/ui'
+import { track } from '@/analytics'
 
 const { t } = useI18n()
 const view = useViewStore()
@@ -77,6 +78,7 @@ function choose(e: SearchEntry | undefined) {
   const v = e.vars && !e.vars.includes(view.state.var) ? e.vars[0] : view.state.var
   view.set({ lvl: e.level, var: v, place: e.id })
   ui.zoomTarget = { id: e.id, bbox: e.bbox }
+  track('search_select', { level: e.level })
   ui.dialogOpen = false
   term.value = ''
 }

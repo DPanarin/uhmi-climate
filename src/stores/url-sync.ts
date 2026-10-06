@@ -4,6 +4,7 @@ import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useViewStore } from './view'
 import { toQuery, viewFromQuery } from './view-rules'
+import { track } from '@/analytics'
 
 const DEBOUNCE_MS = 150
 
@@ -32,7 +33,11 @@ export function useUrlSync() {
     (q) => {
       clearTimeout(timer)
       timer = setTimeout(() => {
-        if (!same(q, route.query as Record<string, unknown>)) void router.replace({ query: q })
+        if (same(q, route.query as Record<string, unknown>)) return
+        void router.replace({ query: q })
+        const params: Record<string, string> = { ...q }
+        delete params.place // which feature is open goes to place_open
+        track('view_change', params)
       }, DEBOUNCE_MS)
     },
   )

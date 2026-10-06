@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Dev-only (not built): the app in frames at the P7 widths. Each frame applies its own media queries.
+     Open http://localhost:5173/uhmi-climate/dev/viewports.html?q=<app query> -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Viewports</title>
+    <style>
+      body { margin: 0; padding: 8px; font: 12px system-ui, sans-serif; background: #ddd; }
+      .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+      figure { margin: 0; }
+      figcaption { margin-bottom: 4px; }
+      .ok { color: #116611; } .bad { color: #b00020; font-weight: 700; }
+      .frame { overflow: hidden; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+      iframe { border: 0; transform-origin: 0 0; }
+    </style>
+  </head>
+  <body>
+    <div class="row" id="row"></div>
+    <script>
+      const SIZES = [[360, 740], [390, 844], [768, 1024], [1024, 768], [1366, 768], [1440, 900], [844, 390]]
+      const params = new URLSearchParams(location.search)
+      const q = params.get('q') ?? ''
+      const scale = Number(params.get('scale') ?? 0.4)
+      const only = params.get('w')?.split(',').map(Number)
+      const row = document.getElementById('row')
+      for (const [w, h] of SIZES.filter(([w]) => !only || only.includes(w))) {
+        const fig = document.createElement('figure')
+        fig.innerHTML = `<figcaption>${w}×${h} <span class="st">…</span></figcaption>
+          <div class="frame" style="width:${w * scale}px;height:${h * scale}px">
+          <iframe width="${w}" height="${h}" style="transform:scale(${scale})" src="../?${q}"></iframe></div>`
+        row.appendChild(fig)
+        const frame = fig.querySelector('iframe')
+        frame.addEventListener('load', () => {
+          setTimeout(() => {
+            const d = frame.contentDocument.documentElement
+            const ok = d.scrollWidth <= frame.contentWindow.innerWidth
+            const st = fig.querySelector('.st')
+            st.textContent = ok ? 'no h-scroll' : `H-SCROLL ${d.scrollWidth}px`
+            st.className = 'st ' + (ok ? 'ok' : 'bad')
+          }, 4000)
+        })
+      }
+    </script>
+  </body>
+</html>

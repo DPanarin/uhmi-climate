@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { feature as topoFeature } from 'topojson-client'
 import type { Topology } from 'topojson-specification'
@@ -10,9 +18,11 @@ import { featureName } from '@/map/feature-name'
 import { useDataStore } from '@/stores/data'
 import { useViewStore } from '@/stores/view'
 import { useUiStore } from '@/stores/ui'
+import { DEBUG } from '@/debug'
 import { formatValue } from '@/i18n/format'
 import type { ValueFile } from '@/map/types'
-import ChartPanel from './chart/ChartPanel.vue'
+// Chart panel, Chart.js, the API client and zod load on the first click only
+const ChartPanel = defineAsyncComponent(() => import('./chart/ChartPanel.vue'))
 
 const { t } = useI18n()
 const view = useViewStore()
@@ -154,8 +164,8 @@ onMounted(async () => {
   ctl.onClick = (id) => view.set({ place: id })
   await ctl.ready()
   activeMap.value = ctl.map
-  // dev only: inspect the map from the browser console
-  if (import.meta.env.DEV) (window as unknown as { __map: unknown }).__map = ctl.map
+  // dev, or ?debug=1: inspect the map from the browser console (performance checks)
+  if (DEBUG) (window as unknown as { __map: unknown }).__map = ctl.map
   ctl.fitUkraine(padding())
   watch([() => view.geometry, () => view.values], render, { immediate: true })
   watch([() => view.scenarioKey, () => view.state.season, () => view.state.dec], recolor)
@@ -176,7 +186,12 @@ onMounted(async () => {
   watch(() => view.state.basins, showOutlines, { immediate: true })
   watch(
     () => view.state.lang,
-    (lang) => ctl?.setLabelField(lang),
+    (lang) => {
+      ctl?.setLabelField(lang)
+      // the canvas is announced as an image with this description
+      ctl?.map.getCanvas().setAttribute('aria-label', t('map.label'))
+    },
+    { immediate: true },
   )
 })
 

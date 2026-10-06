@@ -187,7 +187,10 @@ async function main() {
     type: 'FeatureCollection',
     features: src.basinNames.features.map((f) => ({
       type: 'Feature',
-      properties: { id: str(f.properties.ID), uk: txt(f.properties.Subbasin) || txt(f.properties.Basin) },
+      properties: {
+        id: str(f.properties.ID),
+        uk: txt(f.properties.Subbasin) || txt(f.properties.Basin),
+      },
       geometry: f.geometry,
     })),
   }

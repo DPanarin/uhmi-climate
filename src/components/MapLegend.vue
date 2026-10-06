@@ -86,8 +86,20 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
   font-size: 13px;
   color: var(--c-text-muted);
 }
+/* tablets: narrower, leaving room for the chart card on the right */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .legend {
+    width: 260px;
+  }
+}
 /* phones: a colour strip; tap for labels */
 @media (max-width: 599px) {
+  /* above the map attribution */
+  .legend {
+    left: var(--space-2);
+    width: calc(100vw - 2 * var(--space-2));
+    bottom: calc(30px + env(safe-area-inset-bottom));
+  }
   .legend:not(.hint):not(.expanded) .title,
   .legend:not(.hint):not(.expanded) .ticks {
     display: none;

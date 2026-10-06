@@ -85,7 +85,7 @@ export class MapController {
       style: baseStyle(basemap),
       bounds: UKRAINE_BOUNDS,
       fitBoundsOptions: { padding: 20 },
-      minZoom: MIN_ZOOM - 1,
+      minZoom: 3, // phones need ~3.6 to fit Ukraine; fitUkraine() raises it afterwards
       maxZoom: MAX_ZOOM,
       dragRotate: false,
       pitchWithRotate: false,

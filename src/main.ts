@@ -1,3 +1,4 @@
+import './debug' // first: reads ?debug before the router rewrites the URL
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 

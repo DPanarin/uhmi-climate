@@ -18,6 +18,7 @@
     "format": "prettier --write --no-error-on-unmatched-pattern \"src/**/*.{ts,vue,css}\" \"scripts/**/*.{ts,mjs,js}\"",
     "data:extract": "node --max-old-space-size=8192 scripts/extract/index.ts",
     "data:build": "node --max-old-space-size=8192 scripts/build/index.ts",
+    "data:check": "node --max-old-space-size=8192 scripts/check/index.ts",
     "deploy": "npm run build && gh-pages -d dist --nojekyll"
   },
   "dependencies": {

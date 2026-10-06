@@ -35,6 +35,8 @@ const en: typeof uk = {
     point: 'Latitude: {lat}, Longitude: {lon}',
   },
   map: {
+    label:
+      'Climate change map. Choose a territory with the search in the settings or click on the map.',
     noData: 'no data',
     pointsHint: 'Tap a point to see its series',
     chartSoon: 'The chart will appear here',

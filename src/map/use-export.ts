@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import type { Map as MapLibreMap } from 'maplibre-gl'
 import { useViewStore } from '@/stores/view'
 import { colorFor, legendTicks } from './colors'
-import { exportPng } from './export-png'
 import { formatTick } from '@/i18n/format'
 import { BASEMAPS } from '@/config/map'
+import { track } from '@/analytics'
 
 /** The map on screen (set by MapView). */
 export const activeMap = shallowRef<MapLibreMap | null>(null)
@@ -18,6 +18,7 @@ export function useExportPng() {
   return async function exportCurrent() {
     const map = activeMap.value
     if (!map) return
+    track('export', { kind: 'map-png' })
     const v = view.state
     const parts = [
       t(`datasets.${v.ds}`),
@@ -32,6 +33,8 @@ export function useExportPng() {
     const span = ticks[ticks.length - 1]! - ticks[0]!
     const pos = (x: number) => (x - ticks[0]!) / span
     const every = Math.ceil(ticks.length / 9)
+    // the drawing code loads only when someone exports
+    const { exportPng } = await import('./export-png')
     await exportPng(map, {
       title: `${t(`variables.${v.var}`)} — ${t('app.title')}`,
       subtitle: parts.join(' · '),
