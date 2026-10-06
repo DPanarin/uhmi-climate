@@ -1,17 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/uhmi-climate/favicon.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <link rel="preload" href="/uhmi-climate/fonts/inter/inter-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/uhmi-climate/fonts/inter/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/uhmi-climate/fonts/inter/inter-cyrillic.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/uhmi-climate/fonts/inter/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <title>Кліматичні зміни в Україні</title>
-    <script type="module" crossorigin src="/uhmi-climate/assets/index-DXRb9cj7.js"></script>
+    <style>.shell{color:#1f2a33;background:#fff;border-bottom:1px solid #1f2a331f;align-items:center;gap:8px;height:60px;padding:0 16px;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;position:fixed;inset:0 0 auto}.shell h1{margin:0;font-size:clamp(15px,1.8vw,18px);font-weight:650}@media (width<=599px){.shell{height:48px;padding:0 12px}.shell img{display:none}}</style>
+    <script type="module" crossorigin src="/uhmi-climate/assets/index-fg_mg5oy.js"></script>
     <link rel="modulepreload" crossorigin href="/uhmi-climate/assets/runtime-core.esm-bundler-B8D2lM98.js">
-    <link rel="stylesheet" crossorigin href="/uhmi-climate/assets/index-C5O6no9k.css">
+    <link rel="stylesheet" crossorigin href="/uhmi-climate/assets/index-B71aDvgE.css">
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <header class="shell">
+        <img src="/uhmi-climate/favicon.svg" alt="" width="28" height="28" />
+        <h1>Кліматичні зміни в Україні</h1>
+      </header>
+      <script>
+        if (/[?&]lang=en\b/.test(location.search))
+          document.querySelector('.shell h1').textContent = 'Climate change in Ukraine'
+      </script>
+    </div>
   </body>
 </html>
