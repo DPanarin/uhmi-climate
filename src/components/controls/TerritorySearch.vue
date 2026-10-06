@@ -190,7 +190,7 @@ function choose(e: SearchEntry | undefined) {
 .hit-name mark {
   background: rgba(220, 230, 83, 0.6);
   color: inherit;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 .hit-detail {
   font-size: 12px;

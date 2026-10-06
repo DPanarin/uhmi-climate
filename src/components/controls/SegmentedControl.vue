@@ -38,7 +38,7 @@ function update(v: unknown) {
   min-height: 40px;
   padding: 0 var(--space-2);
   border: 0;
-  border-radius: 6px;
+  border-radius: calc(var(--radius-sm) - 3px);
   background: transparent;
   color: var(--c-text);
   font-size: 14px;

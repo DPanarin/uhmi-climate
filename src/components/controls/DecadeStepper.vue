@@ -100,9 +100,9 @@ function onKey(e: KeyboardEvent) {
   opacity: 0.35;
   cursor: default;
 }
-.play {
-  border-left: 1px solid var(--c-border);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+/* nested in the 12 px box with 2 px padding */
+.btn {
+  border-radius: calc(var(--radius) - 2px);
 }
 .value {
   min-width: 92px;

@@ -73,7 +73,7 @@ const summaryFull = computed(
   min-height: 48px;
   max-width: 100%;
   padding: 0 var(--space-4);
-  border-radius: 999px;
+  border-radius: var(--radius);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

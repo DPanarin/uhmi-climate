@@ -57,6 +57,7 @@ _(date — decision — reason)_
 - 2026-10-06 — P8: `?debug=1` exposes the map as `window.__map` (also on github.io) for performance checks.
 - 2026-10-06 — P9: `npm run data:check` samples 50 features round-robin over all 18 value files × 5 random combinations (250 values, tolerance 0.005); `data:build` already compares all 605,450 values.
 - 2026-10-06 — P9: visual colour parity with the old site is no longer 1:1 by design (CP3 readability change to a square-root curve); value parity is covered by data:check.
+- 2026-10-06 — User request: one radius system — 12 px for every floating box (chip, stepper, legend/hint, chart panel, dialogs, map zoom control), 8 px for controls inside boxes, 4 px for tiny marks; nested items use the parent radius minus padding. Only tokens (`--radius`, `--radius-sm`, `--radius-xs`) in components.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues

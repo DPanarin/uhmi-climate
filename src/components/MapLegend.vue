@@ -59,7 +59,7 @@ const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.
 }
 .bar {
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--c-border);
   /* transparent part of the scale over the basemap colour */
   background-color: #fff;

@@ -365,7 +365,7 @@ legend {
   height: 22px;
   padding: 0; /* reset the default button padding that pushed the tick out of the box */
   border: 1.5px solid var(--c-accent);
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: var(--c-surface);
   color: var(--c-surface);
   cursor: pointer;

@@ -30,8 +30,10 @@
   --c-highlight: #dce653;
   --c-danger: #b42318;
 
-  --radius: 12px;
-  --radius-sm: 8px;
+  /* two radii for boxes and controls, one for tiny marks */
+  --radius: 12px; /* floating boxes: chip, stepper, legend, chart, dialogs, map controls */
+  --radius-sm: 8px; /* controls inside boxes: buttons, inputs, toggles, list items */
+  --radius-xs: 4px; /* checkbox, legend bar, slider track, highlights */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -107,6 +109,19 @@ button {
     background: var(--c-surface-glass);
     backdrop-filter: var(--blur);
   }
+}
+
+.maplibregl-ctrl-group:not(:empty) {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  border-radius: var(--radius);
 }
 
 .visually-hidden {

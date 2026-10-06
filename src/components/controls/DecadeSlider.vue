@@ -63,13 +63,13 @@ const model = computed({
   position: relative;
   flex: 1;
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: rgba(31, 42, 51, 0.15);
 }
 .range {
   position: absolute;
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--c-accent);
 }
 .thumb {
