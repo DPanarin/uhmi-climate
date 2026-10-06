@@ -59,6 +59,14 @@ const years = computed(() => {
   return [Math.min(...all), Math.max(...all)] as const
 })
 
+// the label is wider than a decade: near either end of the axis, keep it inside the plot
+const labelAlign = computed(() => {
+  const span = years.value[1] - years.value[0]
+  if (props.decade[1] > years.value[1] - span * 0.12) return 'end'
+  if (props.decade[0] < years.value[0] + span * 0.12) return 'start'
+  return 'center'
+})
+
 const options = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -125,7 +133,7 @@ const options = computed<ChartOptions<'line'>>(() => ({
           label: {
             display: true,
             content: props.decadeLabel,
-            position: { x: 'center', y: 'start' },
+            position: { x: labelAlign.value, y: 'start' },
             font: { size: 11 },
             color: '#5b6770',
           },
