@@ -51,7 +51,7 @@ describe('parseResponse', () => {
     const files = readdirSync(dir).filter((f) => f.endsWith('.json'))
     expect(files.length).toBeGreaterThanOrEqual(12)
     for (const f of files) {
-      const warn = vi.fn()
+      const warn = vi.fn<(msg: string) => void>()
       const parsed = parseResponse(fixture(f.replace('.json', '')), warn)
       expect(warn, f).not.toHaveBeenCalled()
       for (const group of Object.values(parsed))
@@ -102,12 +102,14 @@ describe('parseResponse', () => {
     expect(toNumber('nan')).toBeNull()
     expect(toNumber('')).toBeNull()
     expect(toNumber('-0.55')).toBe(-0.55)
-    const warn = vi.fn()
+    const warn = vi.fn<(msg: string) => void>()
     expect(parseResponse({ mystery: [['2000', '1']] }, warn)).toEqual({})
     expect(warn).toHaveBeenCalledOnce()
-    expect(() => parseResponse('<html>')).toThrow()
+    expect(() => parseResponse('<html>')).toThrow('unexpected response shape')
   })
 })
+
+type Fetch = (url: string) => Promise<Response>
 
 describe('client', () => {
   const req = buildRequests(findLayer('proj', 'oblasts')!, 'Kyivska', {
@@ -126,7 +128,7 @@ describe('client', () => {
     })
 
   it('caches: a repeat request makes no network call; identical requests in flight share one', async () => {
-    const f = vi.fn((_url: string) => Promise.resolve(ok()))
+    const f = vi.fn<Fetch>((_url) => Promise.resolve(ok()))
     const c = make(f)
     const ctl = new AbortController()
     await Promise.all([c.get(req, ctl.signal), c.get(req, ctl.signal)])
@@ -137,13 +139,13 @@ describe('client', () => {
 
   it('retries once after 502/503 or a network error', async () => {
     const f = vi
-      .fn()
+      .fn<Fetch>()
       .mockResolvedValueOnce(new Response('', { status: 503 }))
       .mockResolvedValueOnce(ok())
     await expect(make(f).get(req, new AbortController().signal)).resolves.toHaveProperty('rcp45')
     expect(f).toHaveBeenCalledTimes(2)
 
-    const down = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
+    const down = vi.fn<Fetch>().mockRejectedValue(new TypeError('Failed to fetch'))
     await expect(make(down).get(req, new AbortController().signal)).rejects.toMatchObject({
       kind: 'unavailable',
     })
@@ -151,14 +153,18 @@ describe('client', () => {
   })
 
   it('maps 500 to "no series" without retry and 400 to "bad request"', async () => {
-    const f500 = vi.fn(() => Promise.resolve(new Response('<html>500</html>', { status: 500 })))
+    const f500 = vi.fn<Fetch>(() =>
+      Promise.resolve(new Response('<html>500</html>', { status: 500 })),
+    )
     await expect(make(f500).get(req, new AbortController().signal)).rejects.toMatchObject({
       kind: 'noSeries',
     })
     expect(f500).toHaveBeenCalledTimes(1)
 
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const f400 = vi.fn(() => Promise.resolve(new Response('invalid arguments', { status: 400 })))
+    const f400 = vi.fn<Fetch>(() =>
+      Promise.resolve(new Response('invalid arguments', { status: 400 })),
+    )
     await expect(make(f400).get(req, new AbortController().signal)).rejects.toBeInstanceOf(ApiError)
     expect(String(err.mock.calls[0]![0])).not.toContain('SECRET')
     err.mockRestore()
@@ -169,7 +175,7 @@ describe('client', () => {
 
   it('reports an aborted request as aborted', async () => {
     const ctl = new AbortController()
-    const f = vi.fn(
+    const f = vi.fn<Fetch>(
       () =>
         new Promise<Response>((_, reject) =>
           ctl.signal.addEventListener('abort', () => reject(new DOMException('x', 'AbortError'))),

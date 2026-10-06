@@ -7,5 +7,13 @@
   "ignorePatterns": ["data-raw/**"],
   "categories": {
     "correctness": "error"
+  },
+  "rules": {
+    "vitest/valid-expect": [
+      "error",
+      {
+        "maxArgs": 2
+      }
+    ]
   }
 }
