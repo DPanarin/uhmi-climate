@@ -14,6 +14,11 @@ const ticks = computed(() => legendTicks(range.value.start, range.value.end, vie
 const gradient = computed(() => legendGradient(ticks.value, view.scale))
 // keep labels readable: at most ~9 labels
 const labelEvery = computed(() => Math.ceil(ticks.value.length / 9))
+// every n-th label plus the last one; skip a label that would run into the last
+function labelShown(i: number) {
+  const last = ticks.value.length - 1
+  return i === last || (i % labelEvery.value === 0 && last - i >= labelEvery.value / 2 + 0.5)
+}
 const baseline = computed(() => view.dataset.baseline.replace('-', '–'))
 const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.value }))
 
@@ -49,7 +54,7 @@ onBeforeUnmount(() => {
         v-for="(tick, i) in ticks"
         :key="tick"
         :style="{ left: `${(i / (ticks.length - 1)) * 100}%` }"
-        :class="{ hidden: i % labelEvery !== 0 && i !== ticks.length - 1 }"
+        :class="{ hidden: !labelShown(i) }"
       >
         {{ formatTick(tick, view.state.lang) }}
       </li>
