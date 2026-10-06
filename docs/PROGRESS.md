@@ -24,6 +24,7 @@ _(date — decision — reason)_
 
 - 2026-10-06 — Repo `DPanarin/uhmi-climate` (personal account, public); Pages at https://dpanarin.github.io/uhmi-climate/ — user's choice.
 - 2026-10-06 — Repo root is `~/WebstormProjects/uhmi/climate` itself (the clone made in `climate/uhmi-climate` was moved up) — matches the plan's layout.
+- 2026-10-06 — Claude only commits; the user pushes and deploys. Remote switched to HTTPS (plain SSH here logs in as PanarinD, not the personal account) — user's choice.
 - 2026-10-06 — The user runs the dev server in WebStorm; Claude checks pages in the user's real Chrome — user's choice.
 - 2026-10-06 — Current create-vue versions instead of the plan's: Vite 8 (plan: 6), MapLibre GL 6 (plan: 5), Pinia 4, vue-router 5, TS 6 — latest stable, no feature impact expected.
 - 2026-10-06 — Dev URL includes the Pages base: http://localhost:5173/uhmi-climate/ — `base` in `vite.config.ts`.

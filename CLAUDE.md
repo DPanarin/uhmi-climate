@@ -38,6 +38,8 @@ Waiting for your OK to start <next phase>.
   Remote: `github.com/DPanarin/uhmi-climate` (public). Pages: https://dpanarin.github.io/uhmi-climate/
 - **PanarinD is NOT the personal account.** Plain `git@github.com` SSH on this Mac authenticates as PanarinD, and
   `github.com-corp` is the company key — never use either for this repo. Never push to an Innate Instruments account.
+- **Claude only commits; the user pushes and runs `npm run deploy` themselves** (HTTPS remote, signed in as DPanarin).
+  Claude never runs `git push` or `npm run deploy`.
 - API etiquette: smoke checks stay under ~100 sequential requests per run; no loops over all features.
 
 ## Commands
