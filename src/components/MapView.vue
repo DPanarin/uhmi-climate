@@ -9,6 +9,7 @@ import {
   watch,
 } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { feature as topoFeature } from 'topojson-client'
 import type { Topology } from 'topojson-specification'
 import type { Feature, FeatureCollection, Point } from 'geojson'
@@ -29,6 +30,7 @@ const { t } = useI18n()
 const view = useViewStore()
 const data = useDataStore()
 const ui = useUiStore()
+const router = useRouter()
 
 const el = ref<HTMLElement>()
 const hover = ref<HoverInfo | null>(null)
@@ -59,6 +61,15 @@ function padding() {
 
 /** Bounds of the data on screen (basins and the grid reach beyond Ukraine). */
 const dataBounds = shallowRef<Bounds | null>(null)
+
+// A link that opens with a chart: fit once more when the panel is on screen (it loads lazily).
+// Panels opened by a click keep the map where it is.
+let fitWithPanel = false // set from the initial URL in onMounted
+function onPanelReady() {
+  if (!fitWithPanel) return
+  fitWithPanel = false
+  ctl?.fitTo(dataBounds.value ?? UKRAINE_BOUNDS, padding(), false)
+}
 
 function fitToData() {
   if (!ctl) return
@@ -186,6 +197,8 @@ onMounted(async () => {
   ctl.onHover = (h) => (hover.value = h)
   ctl.onClick = (id) => view.set({ place: id })
   ctl.onFit = fitToData
+  await router.isReady() // the initial URL is in the store from here on
+  fitWithPanel = !!view.state.place
   await ctl.ready()
   activeMap.value = ctl.map
   // dev, or ?debug=1: inspect the map from the browser console (performance checks)
@@ -247,6 +260,7 @@ onBeforeUnmount(() => {
       :value="selected.value"
       :place="selected.place"
       @close="view.set({ place: null })"
+      @ready="onPanelReady"
     />
   </div>
 </template>

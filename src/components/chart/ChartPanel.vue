@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown, ChevronUp, Download, RotateCw, X } from 'lucide-vue-next'
 import { buildLines, toCsv, unitFor, type Mode } from '@/chart/datasets'
@@ -13,7 +13,8 @@ import { track } from '@/analytics'
 const ChartView = defineAsyncComponent(() => import('./ChartView.vue'))
 
 const props = defineProps<{ name: string; value: string | null; place: string }>()
-defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; ready: [] }>()
+onMounted(() => emit('ready')) // the map makes room for the panel
 
 const { t } = useI18n()
 const view = useViewStore()
