@@ -1,0 +1,296 @@
+// MapLibre wrapper: one feature source at a time; colours, hover and selection via feature-state,
+// so a decade/scenario/season change never rebuilds layers.
+import * as maplibregl from 'maplibre-gl'
+import {
+  type GeoJSONSource,
+  type MapGeoJSONFeature,
+  type MapMouseEvent,
+  type StyleSpecification,
+} from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
+// MapLibre 6 finds its worker next to its own module, which breaks once Vite bundles it: give the URL.
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+import type { FeatureCollection } from 'geojson'
+import type { Scale } from '@/config/layers'
+import { BASEMAP, GLYPHS, LABEL_FONT, MAX_ZOOM, MIN_ZOOM, UKRAINE_BOUNDS } from '@/config/map'
+import { fillColor, fillOpacity } from './colors'
+
+const SRC = 'features'
+const SELECTED = '#dce653' // old site's highlight colour
+const INK = '#294b67'
+
+export interface HoverInfo {
+  id: string
+  properties: Record<string, unknown>
+  point: { x: number; y: number }
+  lngLat: [number, number]
+}
+
+export interface ShowOptions {
+  kind: 'polygon' | 'point'
+  data: FeatureCollection
+  scale: Scale
+  /** Point labels (stations) from zoom 7 with this property. */
+  labelField?: string
+}
+
+function baseStyle(): StyleSpecification {
+  return {
+    version: 8,
+    glyphs: GLYPHS,
+    sources: {
+      basemap: {
+        type: 'raster',
+        tiles: BASEMAP.tiles,
+        tileSize: BASEMAP.tileSize,
+        attribution: BASEMAP.attribution,
+        maxzoom: 19,
+      },
+    },
+    layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }],
+  }
+}
+
+maplibregl.setWorkerUrl(workerUrl)
+
+export class MapController {
+  readonly map: maplibregl.Map
+  private kind: ShowOptions['kind'] | null = null
+  private hoverId: string | null = null
+  private selectedId: string | null = null
+  private ids = new Set<string>()
+  onHover: (info: HoverInfo | null) => void = () => {}
+  onClick: (id: string | null) => void = () => {}
+
+  constructor(container: HTMLElement) {
+    this.map = new maplibregl.Map({
+      container,
+      style: baseStyle(),
+      bounds: UKRAINE_BOUNDS,
+      fitBoundsOptions: { padding: 20 },
+      minZoom: MIN_ZOOM - 1,
+      maxZoom: MAX_ZOOM,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
+      attributionControl: { compact: true },
+      // keep the drawing buffer for PNG export (map.getCanvas().toDataURL)
+      canvasContextAttributes: { preserveDrawingBuffer: true },
+    })
+    this.map.touchZoomRotate.disableRotation()
+    this.map.keyboard.disableRotation()
+    this.map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    this.map.on('mousemove', (e) => this.handleMove(e))
+    this.map.on('mouseout', () => this.setHover(null))
+    this.map.on('click', (e) => {
+      const f = this.featureAt(e)
+      this.onClick(f ? String(f.id) : null)
+    })
+  }
+
+  ready(): Promise<void> {
+    return this.map.isStyleLoaded()
+      ? Promise.resolve()
+      : new Promise((r) => this.map.once('load', () => r()))
+  }
+
+  /** Fits Ukraine; `padding` leaves room for overlays (e.g. a bottom sheet on phones). */
+  fitUkraine(
+    padding: { top: number; bottom: number; left: number; right: number },
+    animate = false,
+  ) {
+    this.map.fitBounds(UKRAINE_BOUNDS, { padding, animate })
+    // phones can't show all of Ukraine at zoom 5, so allow a bit less
+    this.map.setMinZoom(Math.min(MIN_ZOOM, Math.floor(this.map.getZoom() * 2) / 2 - 0.5))
+  }
+
+  /** Replaces the feature layer (on level/dataset change only). */
+  show(opts: ShowOptions) {
+    const m = this.map
+    for (const id of ['fill', 'line', 'line-casing', 'circle', 'label'])
+      if (m.getLayer(id)) m.removeLayer(id)
+    if (m.getSource(SRC)) m.removeSource(SRC)
+    this.hoverId = null
+    this.ids = new Set(opts.data.features.map((f) => String(f.properties?.id)))
+    this.kind = opts.kind
+    m.addSource(SRC, { type: 'geojson', data: opts.data, promoteId: 'id' })
+
+    const selected: maplibregl.ExpressionSpecification = [
+      'boolean',
+      ['feature-state', 'selected'],
+      false,
+    ]
+    const hover: maplibregl.ExpressionSpecification = ['boolean', ['feature-state', 'hover'], false]
+
+    if (opts.kind === 'polygon') {
+      m.addLayer({
+        id: 'fill',
+        type: 'fill',
+        source: SRC,
+        paint: { 'fill-color': fillColor(opts.scale), 'fill-opacity': fillOpacity(opts.scale) },
+      })
+      m.addLayer({
+        id: 'line-casing',
+        type: 'line',
+        source: SRC,
+        paint: { 'line-color': INK, 'line-width': ['case', selected, 6, 0] },
+      })
+      m.addLayer({
+        id: 'line',
+        type: 'line',
+        source: SRC,
+        paint: {
+          'line-color': ['case', selected, SELECTED, hover, INK, 'rgba(57, 61, 63, 0.7)'],
+          // zoom must be the top-level input; state decides the width at each stop
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5,
+            ['case', selected, 3.5, hover, 2.5, 0.5],
+            8,
+            ['case', selected, 3.5, hover, 2.5, 1],
+            11,
+            ['case', selected, 4, hover, 3, 1.5],
+          ],
+        },
+      })
+    } else {
+      m.addLayer({
+        id: 'circle',
+        type: 'circle',
+        source: SRC,
+        paint: {
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5,
+            ['case', selected, 4.5, 2.5],
+            8,
+            ['case', selected, 6.5, 4.5],
+            11,
+            ['case', selected, 9, 7],
+          ],
+          'circle-color': ['case', selected, SELECTED, 'rgba(57, 61, 63, 0.25)'],
+          'circle-stroke-color': INK,
+          'circle-stroke-width': ['case', hover, 2, 1],
+        },
+      })
+      if (opts.labelField) {
+        m.addLayer({
+          id: 'label',
+          type: 'symbol',
+          source: SRC,
+          minzoom: 7,
+          layout: {
+            'text-field': ['get', opts.labelField],
+            'text-font': LABEL_FONT,
+            'text-size': 12,
+            'text-offset': [0, 0.9],
+            'text-anchor': 'top',
+            'text-optional': true,
+          },
+          paint: { 'text-color': '#1f2a33', 'text-halo-color': '#fff', 'text-halo-width': 1.5 },
+        })
+      }
+    }
+    if (this.selectedId && this.ids.has(this.selectedId))
+      this.setState(this.selectedId, { selected: true })
+  }
+
+  setLabelField(field: string) {
+    if (this.map.getLayer('label'))
+      this.map.setLayoutProperty('label', 'text-field', ['get', field])
+  }
+
+  /** Changes the colour scale without touching the layers. */
+  setScale(scale: Scale) {
+    if (!this.map.getLayer('fill')) return
+    this.map.setPaintProperty('fill', 'fill-color', fillColor(scale))
+    this.map.setPaintProperty('fill', 'fill-opacity', fillOpacity(scale))
+  }
+
+  /** Writes one value per feature into feature-state; returns the time it took (ms). */
+  setValues(ids: string[], values: (number | null)[]): number {
+    const t = performance.now()
+    for (let i = 0; i < ids.length; i++) {
+      this.map.setFeatureState({ source: SRC, id: ids[i]! }, { v: values[i] ?? null })
+    }
+    return performance.now() - t
+  }
+
+  select(id: string | null) {
+    if (this.selectedId && this.map.getSource(SRC))
+      this.setState(this.selectedId, { selected: false })
+    this.selectedId = id
+    if (id && this.ids.has(id)) this.setState(id, { selected: true })
+  }
+
+  has(id: string) {
+    return this.ids.has(id)
+  }
+
+  /** The value currently drawn for a feature (feature-state `v`). */
+  valueOf(id: string): number | null {
+    const s = this.map.getFeatureState({ source: SRC, id })
+    return typeof s.v === 'number' ? s.v : null
+  }
+
+  zoomTo(
+    bbox: [number, number, number, number],
+    padding: maplibregl.PaddingOptions,
+    animate = true,
+  ) {
+    const [w, s, e, n] = bbox
+    if (w === e && s === n)
+      this.map.easeTo({ center: [w, s], zoom: Math.max(this.map.getZoom(), 8), animate, padding })
+    else this.map.fitBounds(bbox, { padding, maxZoom: 9, animate })
+  }
+
+  destroy() {
+    this.map.remove()
+  }
+
+  private setState(id: string, state: Record<string, unknown>) {
+    this.map.setFeatureState({ source: SRC, id }, state)
+  }
+
+  private featureAt(e: MapMouseEvent): MapGeoJSONFeature | undefined {
+    const layers = this.kind === 'point' ? ['circle'] : ['fill']
+    if (!layers.every((l) => this.map.getLayer(l))) return undefined
+    // points are small: query a box around the cursor
+    const pad = this.kind === 'point' ? 6 : 0
+    const box: [maplibregl.PointLike, maplibregl.PointLike] = [
+      [e.point.x - pad, e.point.y - pad],
+      [e.point.x + pad, e.point.y + pad],
+    ]
+    return this.map.queryRenderedFeatures(box, { layers })[0]
+  }
+
+  private handleMove(e: MapMouseEvent) {
+    const f = this.featureAt(e)
+    this.map.getCanvas().style.cursor = f ? 'pointer' : ''
+    if (!f) return this.setHover(null)
+    const id = String(f.id)
+    this.setHover(id)
+    this.onHover({
+      id,
+      properties: f.properties,
+      point: { x: e.point.x, y: e.point.y },
+      lngLat: [e.lngLat.lng, e.lngLat.lat],
+    })
+  }
+
+  private setHover(id: string | null) {
+    if (id === this.hoverId) return
+    if (this.hoverId && this.map.getSource(SRC)) this.setState(this.hoverId, { hover: false })
+    this.hoverId = id
+    if (id) this.setState(id, { hover: true })
+    else this.onHover(null)
+  }
+}
+
+export function getSource(map: maplibregl.Map): GeoJSONSource | undefined {
+  return map.getSource(SRC) as GeoJSONSource | undefined
+}

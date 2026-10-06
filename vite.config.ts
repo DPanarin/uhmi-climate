@@ -14,6 +14,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // MapLibre's worker is an ES module
+  worker: { format: 'es' },
   build: {
     // No prefetch of lazy chunks: data and code load only when needed
     modulePreload: { polyfill: false },

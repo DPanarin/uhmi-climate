@@ -1,0 +1,98 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useViewStore } from '@/stores/view'
+import { legendGradient, legendTicks } from '@/map/colors'
+import { formatTick } from '@/i18n/format'
+
+const { t } = useI18n()
+const view = useViewStore()
+const expanded = ref(false) // phones: colour strip until tapped
+
+const range = computed(() => view.scale.legend[view.scenarioKey])
+const ticks = computed(() => legendTicks(range.value.start, range.value.end, view.scale.step))
+const gradient = computed(() => legendGradient(ticks.value, view.scale))
+// keep labels readable: at most ~9 labels
+const labelEvery = computed(() => Math.ceil(ticks.value.length / 9))
+const baseline = computed(() => view.dataset.baseline.replace('-', '–'))
+const title = computed(() => t(`legend.${view.state.var}`, { baseline: baseline.value }))
+</script>
+
+<template>
+  <section
+    v-if="view.layer.kind === 'polygon'"
+    class="legend panel"
+    :class="{ expanded }"
+    :aria-label="title"
+    @click="expanded = !expanded"
+  >
+    <p class="title">{{ title }}</p>
+    <div class="bar" :style="{ background: gradient }" />
+    <ol class="ticks" aria-hidden="true">
+      <li
+        v-for="(tick, i) in ticks"
+        :key="tick"
+        :style="{ left: `${(i / (ticks.length - 1)) * 100}%` }"
+        :class="{ hidden: i % labelEvery !== 0 && i !== ticks.length - 1 }"
+      >
+        {{ formatTick(tick, view.state.lang) }}
+      </li>
+    </ol>
+  </section>
+  <section v-else class="legend panel hint">{{ t('map.pointsHint') }}</section>
+</template>
+
+<style scoped>
+.legend {
+  position: absolute;
+  left: var(--space-4);
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  z-index: 5;
+  width: min(380px, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  user-select: none;
+}
+.title {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.bar {
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--c-border);
+  /* transparent part of the scale over the basemap colour */
+  background-color: #fff;
+}
+.ticks {
+  position: relative;
+  height: 16px;
+  margin: 2px 6px 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+.ticks li {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.ticks li.hidden {
+  visibility: hidden;
+}
+.hint {
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+/* phones: a colour strip; tap for labels */
+@media (max-width: 599px) {
+  .legend:not(.hint):not(.expanded) .title,
+  .legend:not(.hint):not(.expanded) .ticks {
+    display: none;
+  }
+  .legend:not(.hint):not(.expanded) {
+    padding: var(--space-2);
+  }
+}
+</style>

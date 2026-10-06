@@ -1,6 +1,5 @@
 // Layer catalogue — the only module that knows individual layers.
 // P1: facts extracted from climate.uhmi.org.ua (data-raw/config.json, report.md) and checked by hand.
-// P3 extends it with geometry/value file names from public/data/index.json.
 
 export type DatasetId = 'proj' | 'obs'
 export type LevelId = 'ukraine' | 'oblasts' | 'rayons' | 'hromady' | 'basins' | 'grid' | 'stations'
@@ -47,133 +46,82 @@ export interface Layer {
   dataset: DatasetId
   level: LevelId
   kind: 'polygon' | 'point'
-  /** Map values come from the extracted files; point layers have values only via the API. */
-  hasMapValues: boolean
+  /** API `kind`; the feature id is the API `place` (except stations, which carry `place`). */
   apiKind: string
-  /** Source GeoJSON field that becomes the feature id and the API `place`. */
-  placeField: string
-  /** Source file(s) in data-raw/geojson; stations use a different point set per variable. */
-  source: string | Record<VariableId, string>
+  /** Logical file name in public/data/index.json; stations use a different point set per variable. */
+  geometry: string | Record<VariableId, string>
+  /** Polygons have map values in `values/<dataset>/<level>/<variable>`; points only via the API. */
+  hasValues: boolean
   /** i18n key of the layer name (strings from the old site's vizItem config). */
   labelKey: string
 }
 
-const layer = (l: Omit<Layer, 'id' | 'labelKey'>): Layer => ({
-  ...l,
-  id: `${l.dataset}-${l.level}`,
-  labelKey: `layers.${l.dataset}.${l.level}`,
+const polygon = (dataset: DatasetId, level: LevelId, apiKind: string): Layer => ({
+  id: `${dataset}-${level}`,
+  dataset,
+  level,
+  kind: 'polygon',
+  apiKind,
+  geometry: `geo/${level}`,
+  hasValues: true,
+  labelKey: `layers.${dataset}.${level}`,
 })
 
+const point = (
+  dataset: DatasetId,
+  level: LevelId,
+  apiKind: string,
+  geometry: Layer['geometry'],
+): Layer => ({
+  id: `${dataset}-${level}`,
+  dataset,
+  level,
+  kind: 'point',
+  apiKind,
+  geometry,
+  hasValues: false,
+  labelKey: `layers.${dataset}.${level}`,
+})
+
+// place fields (P1 report): Ukraine "Ukraine", oblasts NAME_LAT, rayons COD_2, hromady COD_3,
+// basins Subbasin_eng || Basin, grid id, stations station name.
 export const LAYERS: Layer[] = [
-  layer({
-    dataset: 'proj',
-    level: 'ukraine',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'Ukraine',
-    placeField: 'name_EN',
-    source: 'proj-ukraine',
-  }),
-  layer({
-    dataset: 'proj',
-    level: 'oblasts',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'oblasts',
-    placeField: 'NAME_LAT',
-    source: 'proj-oblasts',
-  }),
-  layer({
-    dataset: 'proj',
-    level: 'rayons',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'rayons',
-    placeField: 'COD_2',
-    source: 'proj-rayons',
-  }),
-  layer({
-    dataset: 'proj',
-    level: 'hromady',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'terhromads',
-    placeField: 'COD_3',
-    source: 'proj-hromady',
-  }),
-  layer({
-    dataset: 'proj',
-    level: 'basins',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'basins',
-    placeField: 'Subbasin_eng || Basin',
-    source: 'proj-basins',
-  }),
-  layer({
-    dataset: 'proj',
-    level: 'grid',
-    kind: 'point',
-    hasMapValues: false,
-    apiKind: 'nodes',
-    placeField: 'id',
-    source: 'proj-grid',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'ukraine',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'Ukraine',
-    placeField: '"Ukraine"',
-    source: 'obs-ukraine',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'oblasts',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'oblasts',
-    placeField: 'NAME_LAT',
-    source: 'obs-oblasts',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'rayons',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'rayons',
-    placeField: 'COD_2',
-    source: 'obs-rayons',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'hromady',
-    kind: 'polygon',
-    hasMapValues: true,
-    apiKind: 'terhromads',
-    placeField: 'COD_3',
-    source: 'obs-hromady',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'grid',
-    kind: 'point',
-    hasMapValues: false,
-    apiKind: 'nodes',
-    placeField: 'id',
-    source: 'obs-grid',
-  }),
-  layer({
-    dataset: 'obs',
-    level: 'stations',
-    kind: 'point',
-    hasMapValues: false,
-    apiKind: 'meteostations',
-    placeField: 'station',
-    source: { tas: 'obs-stations-tm', pr: 'obs-stations-rr' },
+  polygon('proj', 'ukraine', 'Ukraine'),
+  polygon('proj', 'oblasts', 'oblasts'),
+  polygon('proj', 'rayons', 'rayons'),
+  polygon('proj', 'hromady', 'terhromads'),
+  polygon('proj', 'basins', 'basins'),
+  point('proj', 'grid', 'nodes', 'points/proj-grid'),
+  polygon('obs', 'ukraine', 'Ukraine'),
+  polygon('obs', 'oblasts', 'oblasts'),
+  polygon('obs', 'rayons', 'rayons'),
+  polygon('obs', 'hromady', 'terhromads'),
+  point('obs', 'grid', 'nodes', 'points/obs-grid'),
+  point('obs', 'stations', 'meteostations', {
+    tas: 'points/obs-stations-tm',
+    pr: 'points/obs-stations-rr',
   }),
 ]
+
+export const LEVELS: LevelId[] = [
+  'ukraine',
+  'oblasts',
+  'rayons',
+  'hromady',
+  'basins',
+  'grid',
+  'stations',
+]
+
+export function findLayer(dataset: DatasetId, level: LevelId): Layer | undefined {
+  return LAYERS.find((l) => l.dataset === dataset && l.level === level)
+}
+
+export const geometryFile = (layer: Layer, variable: VariableId) =>
+  typeof layer.geometry === 'string' ? layer.geometry : layer.geometry[variable]
+
+export const valuesFile = (layer: Layer, variable: VariableId) =>
+  layer.hasValues ? `values/${layer.dataset}/${layer.level}/${variable}` : null
 
 /**
  * Colour scale as on the old site: not classed. A value gets the "negative" or "positive" colour

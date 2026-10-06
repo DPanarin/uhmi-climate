@@ -1,7 +1,44 @@
 export default {
   app: {
     title: 'Кліматичні зміни в Україні',
-    placeholder: 'Прототип у розробці',
+    institute: 'Український гідрометеорологічний інститут',
+    lab: 'Лабораторія моделювання річкових систем',
+    loading: 'Завантаження…',
+    loadError: 'Не вдалося завантажити дані',
+  },
+  view: {
+    dataset: 'Дані',
+    variable: 'Показник',
+    level: 'Територія',
+    scenario: 'Сценарій',
+    season: 'Сезон',
+    decade: 'Період',
+    language: 'Мова',
+    exportPng: 'Зберегти PNG',
+  },
+  scenarios: {
+    rcp45: 'RCP4.5',
+    rcp85: 'RCP8.5',
+  },
+  seasons: {
+    annual: 'Рік',
+    winter: 'Зима',
+    spring: 'Весна',
+    summer: 'Літо',
+    autumn: 'Осінь',
+  },
+  names: {
+    hromada: '{name} територіальна громада',
+    point: 'Широта: {lat}, Довгота: {lon}',
+  },
+  map: {
+    noData: 'немає даних',
+    pointsHint: 'Натисніть на точку, щоб побачити її ряд',
+    chartSoon: 'Тут з’явиться графік',
+    close: 'Закрити',
+  },
+  dev: {
+    note: 'Тимчасова панель для перевірки (замінить модальне вікно налаштувань)',
   },
   // From the old site's layer config (vizItem)
   datasets: {

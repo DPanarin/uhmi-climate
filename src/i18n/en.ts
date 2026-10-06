@@ -3,7 +3,44 @@ import type uk from './uk'
 const en: typeof uk = {
   app: {
     title: 'Climate change in Ukraine',
-    placeholder: 'Prototype in progress',
+    institute: 'Ukrainian Hydrometeorological Institute',
+    lab: 'River Systems Modelling Laboratory',
+    loading: 'Loading…',
+    loadError: 'Could not load data',
+  },
+  view: {
+    dataset: 'Data',
+    variable: 'Variable',
+    level: 'Territory',
+    scenario: 'Scenario',
+    season: 'Season',
+    decade: 'Period',
+    language: 'Language',
+    exportPng: 'Save PNG',
+  },
+  scenarios: {
+    rcp45: 'RCP4.5',
+    rcp85: 'RCP8.5',
+  },
+  seasons: {
+    annual: 'Year',
+    winter: 'Winter',
+    spring: 'Spring',
+    summer: 'Summer',
+    autumn: 'Autumn',
+  },
+  names: {
+    hromada: '{name} territorial community',
+    point: 'Latitude: {lat}, Longitude: {lon}',
+  },
+  map: {
+    noData: 'no data',
+    pointsHint: 'Tap a point to see its series',
+    chartSoon: 'The chart will appear here',
+    close: 'Close',
+  },
+  dev: {
+    note: 'Temporary panel for checking (to be replaced by the settings dialog)',
   },
   datasets: {
     proj: 'Climate projections (Euro-CORDEX)',

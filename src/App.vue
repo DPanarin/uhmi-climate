@@ -1,23 +1,40 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppHeader from '@/components/AppHeader.vue'
+import DevSwitcher from '@/components/DevSwitcher.vue'
+import MapLegend from '@/components/MapLegend.vue'
+import MapView from '@/components/MapView.vue'
+import { useUrlSync } from '@/stores/url-sync'
+import { useViewStore } from '@/stores/view'
 
-const { t } = useI18n()
+const view = useViewStore()
+const { locale, t } = useI18n()
+useUrlSync()
+
+watch(
+  () => view.state.lang,
+  (lang) => {
+    locale.value = lang
+    document.documentElement.lang = lang
+    document.title = t('app.title')
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <main class="placeholder">
-    <h1>{{ t('app.title') }}</h1>
-    <p>{{ t('app.placeholder') }}</p>
+  <AppHeader />
+  <main class="screen">
+    <MapView />
+    <DevSwitcher />
+    <MapLegend />
   </main>
 </template>
 
 <style scoped>
-.placeholder {
-  display: grid;
-  place-content: center;
-  min-height: 100dvh;
-  padding: 16px;
-  text-align: center;
-  font-family: system-ui, sans-serif;
+.screen {
+  position: relative;
+  height: 100dvh;
 }
 </style>
