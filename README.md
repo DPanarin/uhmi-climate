@@ -3,6 +3,7 @@
 Prototype rebuild of [climate.uhmi.org.ua](https://climate.uhmi.org.ua/) on Vue 3 + MapLibre GL.
 
 - Plan: [`docs/DEV_PLAN.md`](docs/DEV_PLAN.md) · progress: [`docs/PROGRESS.md`](docs/PROGRESS.md)
+- Presentation package and handover notes (Ukrainian): [`docs/presentation/`](docs/presentation/)
 - Live: https://dpanarin.github.io/uhmi-climate/
 
 ## Setup

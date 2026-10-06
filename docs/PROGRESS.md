@@ -4,9 +4,9 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 
 ## Resume here (2026-10-06)
 
-- **State:** P0–P9 done and committed locally (author DPanarin). **CP6 is waiting for the user's OK**: the user still has to do the Firefox pass (Responsive Design Mode at 360/768/1366/1440) and check on their own devices.
-- **Next:** P10 (Ukrainian presentation package, `docs/DEV_PLAN.md` § P10, incl. item 9: mobile view + shareable links must be presented). Before P10 the user pushes and runs `npm run deploy` so Lighthouse runs on https://dpanarin.github.io/uhmi-climate/ (Claude never pushes or deploys).
-- **Open user decisions:** none pending besides CP6. Title stays "Кліматичні зміни в Україні" (user, after CP4).
+- **State:** P0–P10 done. **CP7 is waiting for the user's OK** (user reads the package, runs the demo script, records the backup video). Package: `docs/presentation/` (index in its README); slides: Slides artifact https://claude.ai/artifact/1KreDMuDDKXDG3RxbPaUGP (private to the user; PPTX/PDF from its menu), source in `docs/presentation/deck/`.
+- **Next:** after CP7, only fixes the user asks for. The label fix (`bfd1565`) needs one more push + deploy; the shared-link screenshots were taken from a local build of it.
+- **Open user decisions:** none. Title stays "Кліматичні зміни в Україні" (user, after CP4).
 - **Changes after CP5, all user requests, already done:** basemap choice + basin outlines, checkbox fix, one radius system, fit-to-data button.
 - **How to check:** dev server (user runs it) http://localhost:5173/uhmi-climate/; responsive page `/uhmi-climate/dev/viewports.html?w=360,768&q=<encoded app query>`; `?debug=1` → `window.__map`. Commands: `npm test`, `npm run lint`, `npm run type-check`, `npm run data:check`, `npm run build`.
 
@@ -21,10 +21,10 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 | P4. Map | CP3 | done (OK 2026-10-06) | 2026-10-06 |
 | P5. Controls modal | CP4 | done (OK 2026-10-06) | 2026-10-06 |
 | P6. Charts and API client | CP5 | done (OK 2026-10-06) | 2026-10-06 |
-| P7. Responsive and accessibility | CP6 | waiting for OK | 2026-10-06 |
-| P8. Performance | CP6 | waiting for OK | 2026-10-06 |
-| P9. Unit tests and data parity | CP6 | waiting for OK | 2026-10-06 |
-| P10. Presentation package (Ukrainian) | CP7 | not started | |
+| P7. Responsive and accessibility | CP6 | done (OK 2026-10-06) | 2026-10-06 |
+| P8. Performance | CP6 | done (OK 2026-10-06) | 2026-10-06 |
+| P9. Unit tests and data parity | CP6 | done (OK 2026-10-06) | 2026-10-06 |
+| P10. Presentation package (Ukrainian) | CP7 | waiting for OK | 2026-10-06 |
 
 ## Decisions taken during implementation
 
@@ -69,11 +69,15 @@ _(date — decision — reason)_
 - 2026-10-06 — User request: "fit all data" button under + − (MapLibre control, same style). Fits to the bounds of the current layer's data (basins and the projection grid reach beyond Ukraine), keeping clear of an open chart card (desktop/tablet) or the chart sheet and chip bar (phones).
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
+- 2026-10-06 — P10: Lighthouse median of 3 runs per site and profile instead of one run (single runs varied: one mobile run showed 2.3 s TBT while other work ran). Only the median HTML reports are kept; the CARTO key in tile URLs is redacted.
+- 2026-10-06 — P10: deck made as a Slides artifact (PPTX/PDF download from its menu) instead of separate PPTX/PDF files; source copied to `docs/presentation/deck/`. Backup screen recording is the user's (not scriptable here).
+- 2026-10-06 — Chart drawn without animation: Chart.js animations need animation frames, and the chart stayed blank or stale until a mouse move (user report).
+
 ## Open issues
 
 - Kyiv city has no hromada polygon in the source data (white hole at hromada level); same on the old site? Check at CP3.
 - First-visit JS: 359 KB main (target ≤ 400) + 142 KB MapLibre worker = 501 KB. The worker is MapLibre's own (it was inlined in MapLibre 5); no way to share code between page and worker. Total first visit ≈ 620 KB (target ≤ 700), first-screen data 25 KB (≤ 100).
-- Hromada first draw: ~1.3 s on the production build (localhost, warm cache) vs ~10 s on the dev server; recolour of 1779 features 1.2 ms. Cold-cache numbers come with Lighthouse on github.io in P10.
+- Hromada first draw: 0.4–0.6 s on github.io with an empty cache (fast connection); recolour of 1779 features 1.2 ms.
 - MapLibre 6 ships its worker separately (511 KB raw), partly duplicating the main bundle — look at it in P8.
 - Known limitation: two precipitation stations named "Yampil"; the API keys stations by name, so "Yampil-2" (Cherkasy area) can't be addressed separately.
 - Old site's precipitation projection grid is labelled "grid 0.1x0.1°" (temperature: 0.11°) — label typo, same nodes.
@@ -91,3 +95,4 @@ _(date — phase — what was done)_
 - 2026-10-06 — P5 — Controls dialog (Reka UI): territory search (index on first focus, ranked, highlighted), dataset/variable/scenario/season toggles, level picker with reasons and loading state, decade slider, on-map decade stepper with play, stepper checkbox in localStorage, language, PNG export, About. Side panel ≥ 600 px, bottom sheet with swipe-down below. Temporary select panel removed.
 - 2026-10-06 — P6 — API client (request builder for all 12 layers, zod parsing, sort, reshape to hist/rcp45/rcp85, LRU + sessionStorage cache, merged in-flight, abort, 10 s timeout, one retry for network/502/503, 500 → "no series"), 12 recorded fixtures, chart panel (Chart.js lazily loaded): ensemble means + band, observations, tm/tn/tx for observed temperature, selected decade band, values/change and yearly/moving toggles, CSV + PNG export, skeleton and error states, phone bottom sheet. Hromada "state territories" (None_*) get no "community" suffix.
 - 2026-10-06 — P7–P9 — responsive fixes at all widths incl. landscape phones, map canvas label, lazy loading of everything not on the first screen, Inter font, analytics hook (off), favicon, `npm run data:check`, dev viewport page. 75 unit tests, data:check 250/250, build within targets except the MapLibre worker (see open issues).
+- 2026-10-06 — P10 — Lighthouse ×3 per site/profile on github.io vs the old site (mobile Performance 72 → 92, Accessibility 78 → 100, LCP 9.2 → 3.2 s, 10–23 MB → 0.8 MB), JS heap, cold hromada draw; screenshot pairs; 10-slide Ukrainian deck with speaker notes; demo script, API slide, handover notes, results table. Fixes found on the way: static header in index.html (mobile FCP 2.9 → 0.8 s), map fit for links that open a chart, chart drawn without animation (was blank until a mouse move), min zoom recomputed on resize, chart loader, legend label collision, decade label clipped at the chart ends, lint (typed mocks).

@@ -1,0 +1,21 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-10-06T17:40:00Z" },
+  "lists": "css",
+  "title": "Кліматичні зміни в Україні — новий інтерфейс",
+  "order": ["cover", "problems", "done", "desktop", "numbers", "mobile", "links", "demo", "api", "next"],
+  "sections": {
+    "s1": { "description": "Вступ: що це за прототип", "start": "cover" },
+    "s2": { "description": "Що було не так і що зроблено", "start": "problems" },
+    "s3": { "description": "Було / стало: вигляд і вимірювання", "start": "desktop" },
+    "s4": { "description": "Обов'язкове: мобільна версія і посилання з даними", "start": "mobile" },
+    "s5": { "description": "Демонстрація, API, наступні кроки", "start": "demo" }
+  },
+  "faces": {
+    "inter": {
+      "family": "Inter",
+      "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    }
+  },
+  "designSystems": []
+}

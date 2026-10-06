@@ -1,0 +1,16 @@
+<section id="api" data-transition="fade" style="background:#EEF1F4;color:#1F2A33;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#294B67;letter-spacing:2px;text-transform:uppercase">Що покращити в API · api.uhmi.org.ua</p>
+<h2 style="font-size:64px;font-weight:700;line-height:1.1">Вісім невеликих змін на сервері</h2>
+<table style="font-size:24px;color:#1F2A33">
+<tr><th style="width:36%;text-align:left">Зараз</th><th style="width:32%;text-align:left">Пропозиція</th><th style="width:32%;text-align:left">Що дасть</th></tr>
+<tr><td>Відповіді без стиснення</td><td>gzip або brotli</td><td>ряди в ~6 разів менші</td></tr>
+<tr><td>Немає заголовків кешування</td><td>Cache-Control на добу</td><td>повтор без запиту до сервера</td></tr>
+<tr><td>Невідома територія → 500 і HTML</td><td>404 з коротким JSON</td><td>зрозумілі помилки</td></tr>
+<tr><td>Сезонні ряди не відсортовані</td><td>сортувати за датою</td><td>менше роботи клієнтам</td></tr>
+<tr><td>Числа рядками ("1.23")</td><td>передавати числа</td><td>менший обсяг</td></tr>
+<tr><td>Ключ у кожному запиті з браузера</td><td>строк дії, зміна ключа, CORS</td><td>ключ не діє вічно</td></tr>
+<tr><td>Немає опису API</td><td>OpenAPI (Swagger)</td><td>легше дослідникам</td></tr>
+<tr style="background:#DCE653"><td>Значення карти лише в коді сайту</td><td>endpoint зі значеннями карти</td><td>оновлення без перебудови сайту</td></tr>
+</table>
+<aside>Під час роботи з API я зібрав вісім пропозицій; кожна — невелика зміна на сервері. Найпростіші й найкорисніші — стиснення і кешування: ряд проєкцій стискається з 47 до 8 кілобайтів. Помилка 500 на невідому територію виглядає як збій сервера; краще 404. Ключ API видно в браузері, тому варто обмежити його строк дії і домени. І найважливіше — виділене жовтим: зараз значення для карти є лише всередині коду сайту, тому я витягую їх скриптом. Endpoint із цими значеннями дозволить оновлювати дані без перебудови сайту. Деталі — в docs/presentation/api-improvements.md.</aside>
+</section>
