@@ -12,7 +12,9 @@ export function featureName(
   coords?: [number, number],
 ): string {
   const name = String(props[lang] ?? props.uk ?? props.id ?? '')
-  if (level === 'hromady') return t('names.hromada', { name })
+  // "state territories" (lakes, reserves; ids None_*) are not communities: no suffix
+  if (level === 'hromady' && !String(props.id).startsWith('None_'))
+    return t('names.hromada', { name })
   if (level === 'grid' && coords) return t('names.point', { lat: coords[1], lon: coords[0] })
   return name
 }

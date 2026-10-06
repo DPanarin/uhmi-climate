@@ -88,10 +88,10 @@ export class MapController {
     })
   }
 
+  /** Resolves once the style is parsed — not on 'load', which also waits for every basemap tile. */
   ready(): Promise<void> {
-    return this.map.isStyleLoaded()
-      ? Promise.resolve()
-      : new Promise((r) => this.map.once('load', () => r()))
+    if (this.map.isStyleLoaded()) return Promise.resolve()
+    return new Promise((r) => this.map.once('style.load', () => r()))
   }
 
   /** Fits Ukraine; `padding` leaves room for overlays (e.g. a bottom sheet on phones). */

@@ -26,3 +26,10 @@ export function formatTick(v: number, lang: Lang): string {
     maximumFractionDigits: 1,
   }).format(v)
 }
+
+/** Plain number in the UI language (absolute values: no sign). */
+export function formatNumber(v: number, lang: Lang, digits = 2): string {
+  return new Intl.NumberFormat(lang === 'uk' ? 'uk-UA' : 'en-GB', {
+    maximumFractionDigits: digits,
+  }).format(v)
+}

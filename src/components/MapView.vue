@@ -12,7 +12,7 @@ import { useViewStore } from '@/stores/view'
 import { useUiStore } from '@/stores/ui'
 import { formatValue } from '@/i18n/format'
 import type { ValueFile } from '@/map/types'
-import FeatureCard from './FeatureCard.vue'
+import ChartPanel from './chart/ChartPanel.vue'
 
 const { t } = useI18n()
 const view = useViewStore()
@@ -132,7 +132,9 @@ const tooltip = computed(() => {
 const selected = computed(() => {
   const id = view.state.place
   if (!id || !features.value.has(id)) return null
-  return { id, name: nameOf(id), value: valueText(id) }
+  // stations carry the API name in `place` (ids are unique per location); others use the id
+  const place = String(features.value.get(id)?.properties?.place ?? id)
+  return { id, name: nameOf(id), value: valueText(id), place }
 })
 
 onMounted(async () => {
@@ -179,10 +181,12 @@ onBeforeUnmount(() => {
     </div>
     <p v-if="data.loading.size" class="status panel">{{ t('app.loading') }}</p>
     <p v-else-if="data.error" class="status panel error" role="alert">{{ t('app.loadError') }}</p>
-    <FeatureCard
-      v-if="selected && !ui.dialogOpen"
+    <ChartPanel
+      v-if="selected"
+      v-show="!ui.dialogOpen"
       :name="selected.name"
       :value="selected.value"
+      :place="selected.place"
       @close="view.set({ place: null })"
     />
   </div>

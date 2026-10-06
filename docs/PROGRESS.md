@@ -11,8 +11,8 @@ Plan: `docs/DEV_PLAN.md`. Update this file at every checkpoint.
 | P2. Map data build | CP2 | done (OK 2026-10-06) | 2026-10-06 |
 | P3. App shell | CP3 | done (OK 2026-10-06) | 2026-10-06 |
 | P4. Map | CP3 | done (OK 2026-10-06) | 2026-10-06 |
-| P5. Controls modal | CP4 | waiting for OK | 2026-10-06 |
-| P6. Charts and API client | CP5 | not started | |
+| P5. Controls modal | CP4 | done (OK 2026-10-06) | 2026-10-06 |
+| P6. Charts and API client | CP5 | waiting for OK | 2026-10-06 |
 | P7. Responsive and accessibility | CP6 | not started | |
 | P8. Performance | CP6 | not started | |
 | P9. Unit tests and data parity | CP6 | not started | |
@@ -45,13 +45,17 @@ _(date — decision — reason)_
 - 2026-10-06 — P5: legend ends snap outwards to whole steps (observations −1.5…3 °C instead of −1.4…3.1).
 - 2026-10-06 — CP4 feedback: the old site's "Additional information" popup (citation rules, Euro-CORDEX sources, 32-model table, glossary) is required. Extracted from the bundle's compiled Vue render code by `scripts/extract/info.ts` (AST, tag whitelist, uk + en), published as `content/info-{uk,en}`, shown by an ⓘ button in the header and a link in the settings "About".
 - 2026-10-06 — Header (user request): app title on the left; on the right UHMI emblem + "Український гідрометеорологічний інститут / ДСНС України та НАН України" (en: "Ukrainian Hydrometeorological Institute / SES of Ukraine and NAS of Ukraine") │ lab mark + lab name (uk/en image), then ⓘ. All header text follows the UI language. Tablet: emblems only; phone: institute emblem + title.
+- 2026-10-06 — P6: as on the old site, the 2.5–97.5 % band is drawn in absolute mode only (the API has no anomaly quantiles); notes under the chart are the old site's texts (uk anomaly note translated).
+- 2026-10-06 — P6: chart units: temperature °C; precipitation mm (absolute and observed anomalies), % for projection anomalies — as the API returns them.
+- 2026-10-06 — P6: map data now loads on MapLibre `style.load` instead of `load` (which waits for every basemap tile — up to ~9 s on large high-DPI screens).
+- 2026-10-06 — P6: Vite pre-bundles maplibre-gl, chart.js, vue-chartjs, the annotation plugin and topojson-client (runtime discovery re-optimised deps mid-session and broke the MapLibre worker until reload).
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
 
 - Kyiv city has no hromada polygon in the source data (white hole at hromada level); same on the old site? Check at CP3.
 - Phone widths below ~555 px can't be checked by resizing the Chrome window; use DevTools device mode in P7.
-- Main JS is 405 KB gzip after P5 (target ≤ 400): lazy-load the dialog/search in P8.
+- Main JS is 434 KB gzip after P6 (target ≤ 400): Chart.js is already lazy (ChartView chunk); in P8 also lazy-load the dialog/search and the API client with zod.
 - MapLibre 6 ships its worker separately (511 KB raw), partly duplicating the main bundle — look at it in P8.
 - Known limitation: two precipitation stations named "Yampil"; the API keys stations by name, so "Yampil-2" (Cherkasy area) can't be addressed separately.
 - Old site's precipitation projection grid is labelled "grid 0.1x0.1°" (temperature: 0.11°) — label typo, same nodes.
@@ -67,3 +71,4 @@ _(date — phase — what was done)_
 - 2026-10-06 — P2 — `npm run data:build`: 28 content-hashed files + `index.json` in `public/data/` (5 TopoJSON levels, 18 value files, 4 point files, search index with 2.3k entries). Values ↔ geometry join 100 %; 605,450 values identical to the source (max diff 0). Overlay SVGs in `data-raw/overlays/`, report in `data-raw/build-report.md`. Rebuild is byte-identical.
 - 2026-10-06 — P3+P4 — URL ↔ Pinia sync (replace-only, 150 ms debounce), view rules, data store (index.json, de-duplicated loads, stale loads aborted), MapLibre map with all 12 layers, feature-state colouring (old site's continuous rule), hover/selection, tooltip, legend, header with the institute's logos, PNG export, uk/en. Hromada recolour 0.8 ms. Checked in Chrome (dev + production preview): no console errors.
 - 2026-10-06 — P5 — Controls dialog (Reka UI): territory search (index on first focus, ranked, highlighted), dataset/variable/scenario/season toggles, level picker with reasons and loading state, decade slider, on-map decade stepper with play, stepper checkbox in localStorage, language, PNG export, About. Side panel ≥ 600 px, bottom sheet with swipe-down below. Temporary select panel removed.
+- 2026-10-06 — P6 — API client (request builder for all 12 layers, zod parsing, sort, reshape to hist/rcp45/rcp85, LRU + sessionStorage cache, merged in-flight, abort, 10 s timeout, one retry for network/502/503, 500 → "no series"), 12 recorded fixtures, chart panel (Chart.js lazily loaded): ensemble means + band, observations, tm/tn/tx for observed temperature, selected decade band, values/change and yearly/moving toggles, CSV + PNG export, skeleton and error states, phone bottom sheet. Hromada "state territories" (None_*) get no "community" suffix.

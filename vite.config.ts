@@ -16,6 +16,11 @@ export default defineConfig({
   },
   // MapLibre's worker is an ES module
   worker: { format: 'es' },
+  // Pre-bundle lazily imported deps up front: discovering them at runtime makes Vite re-optimize and
+  // reload mid-session, which breaks MapLibre's worker until a full reload.
+  optimizeDeps: {
+    include: ['maplibre-gl', 'chart.js', 'vue-chartjs', 'chartjs-plugin-annotation', 'topojson-client'],
+  },
   build: {
     // No prefetch of lazy chunks: data and code load only when needed
     modulePreload: { polyfill: false },
