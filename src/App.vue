@@ -2,6 +2,7 @@
 import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
+import InfoDialog from '@/components/InfoDialog.vue'
 import ControlsDialog from '@/components/controls/ControlsDialog.vue'
 import MapLegend from '@/components/MapLegend.vue'
 import MapView from '@/components/MapView.vue'
@@ -30,6 +31,7 @@ watch(
     <ControlsDialog />
     <MapLegend />
   </main>
+  <InfoDialog />
 </template>
 
 <style scoped>

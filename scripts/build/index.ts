@@ -311,6 +311,12 @@ async function main() {
     )
   put('search-index', '.json', search)
 
+  // ── "Additional information" content (from the old site's popup, see extract/info.ts) ──
+  for (const lang of ['uk', 'en']) {
+    const html = (await readFile(join(RAW, 'info', `${lang}.html`), 'utf8')).trim()
+    put(`content/info-${lang}`, '.json', { html })
+  }
+
   // ── write ──────────────────────────────────────────────────────────────────
   await rm(OUT, { recursive: true, force: true })
   const index: Record<string, string> = {}

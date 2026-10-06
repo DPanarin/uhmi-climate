@@ -65,6 +65,12 @@ const en: typeof uk = {
       'A prototype of a new interface for climate.uhmi.org.ua. The map shows the change in air temperature and precipitation relative to a baseline period: Euro-CORDEX climate projections under RCP4.5 and RCP8.5 (1981–2100) and historical observations (1946–2020). Click a territory to see its time series.',
     close: 'Close',
   },
+  info: {
+    open: 'Additional information',
+    title: 'Additional information',
+    description: 'Citation, data sources, climate models and glossary',
+    link: 'Citation, data sources and glossary',
+  },
   levels: {
     ukraine: 'Ukraine',
     oblasts: 'Oblasts',

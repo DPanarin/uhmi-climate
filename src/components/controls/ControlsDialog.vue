@@ -40,6 +40,11 @@ const view = useViewStore()
 const ui = useUiStore()
 const exportPng = useExportPng()
 
+function openInfo() {
+  ui.dialogOpen = false
+  ui.infoOpen = true
+}
+
 // The dialog writes to the store directly: changes apply at once, no "Apply" button.
 const field = <K extends 'ds' | 'var' | 'rcp' | 'season' | 'lang'>(key: K) =>
   computed({
@@ -220,6 +225,9 @@ function dragEnd() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <p class="about-text">{{ t('controls.aboutText') }}</p>
+                <button type="button" class="info-link" @click="openInfo">
+                  {{ t('info.link') }}
+                </button>
               </CollapsibleContent>
             </CollapsibleRoot>
           </fieldset>
@@ -463,6 +471,17 @@ legend {
 }
 .about-trigger[data-state='open'] .chev {
   transform: rotate(180deg);
+}
+.info-link {
+  margin-top: var(--space-2);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--c-accent);
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
 }
 .about-text {
   margin: 0;

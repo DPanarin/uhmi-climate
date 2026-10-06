@@ -15,6 +15,8 @@ function readStepper(): boolean {
 
 export const useUiStore = defineStore('ui', () => {
   const dialogOpen = ref(false)
+  /** "Additional information": citation, sources, models, glossary. */
+  const infoOpen = ref(false)
   const stepperVisible = ref(readStepper())
   watch(stepperVisible, (on) => {
     try {
@@ -27,5 +29,5 @@ export const useUiStore = defineStore('ui', () => {
   /** Bounding box to zoom to once the matching layer is on the map. */
   const zoomTarget = ref<{ id: string; bbox: [number, number, number, number] } | null>(null)
 
-  return { dialogOpen, stepperVisible, zoomTarget }
+  return { dialogOpen, infoOpen, stepperVisible, zoomTarget }
 })

@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { findFeatureCollections, type Json } from './ast-json.ts'
 import { classify, propertyKeys } from './classify.ts'
 import { extractConfig, type OldSiteConfig } from './config.ts'
+import { extractInfo } from './info.ts'
 import { downloadChunks, type Manifest } from './download.ts'
 import { SOURCES, type SourceId } from './layers.ts'
 import { smoke, type SmokeResult } from './smoke.ts'
@@ -56,10 +57,24 @@ async function main() {
   const found: Found[] = []
   const errors: string[] = []
   let configChunk: { name: string; source: string } | null = null
+  let infoFound = false
   for (const c of manifest.chunks) {
     const source = await readFile(join(RAW, c.file), 'utf8')
     if (source.includes('serverKey') && source.includes('getServerParams'))
       configChunk = { name: c.name, source }
+    // "Additional information" popup (citation, sources, model table, glossary)
+    if (!infoFound && source.includes('popupShow') && source.includes('info__block')) {
+      const info = extractInfo(source)
+      if (info) {
+        infoFound = true
+        await mkdir(join(RAW, 'info'), { recursive: true })
+        for (const lang of ['uk', 'en'] as const)
+          await writeFile(join(RAW, 'info', `${lang}.html`), info[lang] + '\n')
+        if (info.unknown.length)
+          errors.push(`${c.name}: info popup has unknown nodes: ${info.unknown.join(', ')}`)
+        console.log(`info popup       ← ${c.name}`)
+      }
+    }
     if (!source.includes('FeatureCollection')) continue
     let collections
     try {
@@ -111,6 +126,7 @@ async function main() {
       JSON.stringify({ chunk: configChunk.name, ...config }, null, 2) + '\n',
     )
   } else errors.push('config chunk (serverKey + getServerParams) not found')
+  if (!infoFound) errors.push('"Additional information" popup not found')
   console.log(`API key: ${keyStatus}`)
 
   // 6. validate

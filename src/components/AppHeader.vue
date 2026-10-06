@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { Info } from 'lucide-vue-next'
+import { useUiStore } from '@/stores/ui'
 import climateIcon from '@/assets/logos/climate.svg'
 import uhmiLogo from '@/assets/logos/uhmi.svg'
 import labLogo from '@/assets/logos/lab.svg'
@@ -7,6 +9,7 @@ import labTextUk from '@/assets/logos/lab-text-uk.svg'
 import labTextEn from '@/assets/logos/lab-text-en.svg'
 
 const { t, locale } = useI18n()
+const ui = useUiStore()
 </script>
 
 <template>
@@ -16,6 +19,15 @@ const { t, locale } = useI18n()
       <h1 class="title">{{ t('app.title') }}</h1>
     </div>
     <div class="logos">
+      <button
+        type="button"
+        class="info"
+        :aria-label="t('info.open')"
+        :title="t('info.open')"
+        @click="ui.infoOpen = true"
+      >
+        <Info :size="20" aria-hidden="true" />
+      </button>
       <img
         :src="uhmiLogo"
         :alt="t('app.institute')"
@@ -70,6 +82,20 @@ const { t, locale } = useI18n()
   align-items: center;
   gap: var(--space-4);
   flex-shrink: 0;
+}
+.info {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  background: var(--c-surface);
+  color: var(--c-text);
+  cursor: pointer;
+}
+.info:hover {
+  box-shadow: var(--shadow-1);
 }
 .lab {
   display: flex;

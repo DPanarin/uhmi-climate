@@ -27,6 +27,8 @@
     "points/obs-grid": "points/obs-grid.dc3d5d1e.json",
     "points/obs-stations-tm": "points/obs-stations-tm.029d45dd.json",
     "points/obs-stations-rr": "points/obs-stations-rr.aa07e404.json",
-    "search-index": "search-index.6c980248.json"
+    "search-index": "search-index.6c980248.json",
+    "content/info-uk": "content/info-uk.cebfe192.json",
+    "content/info-en": "content/info-en.1f438b0b.json"
   }
 }
