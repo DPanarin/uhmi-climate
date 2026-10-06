@@ -4,6 +4,7 @@
   "env": {
     "browser": true
   },
+  "ignorePatterns": ["data-raw/**"],
   "categories": {
     "correctness": "error"
   }

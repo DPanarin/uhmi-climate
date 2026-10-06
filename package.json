@@ -16,7 +16,7 @@
     "lint:eslint": "eslint . --cache",
     "lint:prettier": "prettier --check --no-error-on-unmatched-pattern \"src/**/*.{ts,vue,css}\" \"scripts/**/*.{ts,mjs,js}\"",
     "format": "prettier --write --no-error-on-unmatched-pattern \"src/**/*.{ts,vue,css}\" \"scripts/**/*.{ts,mjs,js}\"",
-    "data:extract": "node -e \"console.error('data:extract is implemented in P1');process.exit(1)\"",
+    "data:extract": "node --max-old-space-size=8192 scripts/extract/index.ts",
     "data:build": "node -e \"console.error('data:build is implemented in P2');process.exit(1)\"",
     "deploy": "npm run build && gh-pages -d dist --nojekyll"
   },
