@@ -222,15 +222,15 @@ export const SCALES: Record<DatasetId, Record<VariableId, Scale>> = {
       },
     },
   },
-  // Old site: observation polygons are tinted with the projection fill range, while their legend uses the
-  // observation range — so map and legend disagree there. Kept 1:1 until decided at CP1.
+  // Old site tints observation polygons with the projection range, so map and legend disagree.
+  // Decided at CP1: observations use their own range for the fill too.
   obs: {
     tas: {
       step: 0.5,
       unit: '°C',
       negative: BLUE,
       positive: RED,
-      fill: { min: -1, max: 6.4 },
+      fill: { min: -1.4, max: 2.7 },
       legend: {
         rcp45: { start: -1.4, end: 2.7 },
         rcp85: { start: -1.4, end: 2.7 },
@@ -242,7 +242,7 @@ export const SCALES: Record<DatasetId, Record<VariableId, Scale>> = {
       unit: '%',
       negative: RED,
       positive: BLUE,
-      fill: { min: -42, max: 50 },
+      fill: { min: -35, max: 109 },
       legend: {
         rcp45: { start: -35, end: 109 },
         rcp85: { start: -35, end: 109 },

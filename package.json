@@ -17,7 +17,7 @@
     "lint:prettier": "prettier --check --no-error-on-unmatched-pattern \"src/**/*.{ts,vue,css}\" \"scripts/**/*.{ts,mjs,js}\"",
     "format": "prettier --write --no-error-on-unmatched-pattern \"src/**/*.{ts,vue,css}\" \"scripts/**/*.{ts,mjs,js}\"",
     "data:extract": "node --max-old-space-size=8192 scripts/extract/index.ts",
-    "data:build": "node -e \"console.error('data:build is implemented in P2');process.exit(1)\"",
+    "data:build": "node --max-old-space-size=8192 scripts/build/index.ts",
     "deploy": "npm run build && gh-pages -d dist --nojekyll"
   },
   "dependencies": {
