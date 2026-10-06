@@ -8,17 +8,36 @@ import labLogo from '@/assets/logos/lab.svg'
 import labTextUk from '@/assets/logos/lab-text-uk.svg'
 import labTextEn from '@/assets/logos/lab-text-en.svg'
 
+// As on the old site: both organisations on the left, divided by a vertical line; the app title next.
 const { t, locale } = useI18n()
 const ui = useUiStore()
 </script>
 
 <template>
   <header class="header">
+    <div class="orgs">
+      <div class="org">
+        <img :src="uhmiLogo" alt="" class="logo" width="31" height="36" />
+        <span class="org-name">
+          <span>{{ t('app.institute') }}</span>
+          <span v-if="t('app.instituteSub')">{{ t('app.instituteSub') }}</span>
+        </span>
+      </div>
+      <span class="divider" aria-hidden="true" />
+      <div class="org lab">
+        <img :src="labLogo" alt="" class="logo" width="28" height="36" />
+        <img
+          :src="locale === 'en' ? labTextEn : labTextUk"
+          :alt="t('app.lab')"
+          class="lab-text"
+          height="22"
+        />
+      </div>
+    </div>
+
     <div class="brand">
       <img :src="climateIcon" alt="" class="icon" width="28" height="28" />
       <h1 class="title">{{ t('app.title') }}</h1>
-    </div>
-    <div class="logos">
       <button
         type="button"
         class="info"
@@ -28,22 +47,6 @@ const ui = useUiStore()
       >
         <Info :size="20" aria-hidden="true" />
       </button>
-      <img
-        :src="uhmiLogo"
-        :alt="t('app.institute')"
-        :title="t('app.institute')"
-        class="logo"
-        height="32"
-      />
-      <span class="lab">
-        <img :src="labLogo" alt="" class="logo" height="32" />
-        <img
-          :src="locale === 'en' ? labTextEn : labTextUk"
-          :alt="t('app.lab')"
-          class="lab-text"
-          height="22"
-        />
-      </span>
     </div>
   </header>
 </template>
@@ -57,11 +60,46 @@ const ui = useUiStore()
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-4);
   padding: 0 var(--space-4);
   background: var(--c-surface-glass);
   border-bottom: 1px solid var(--c-border);
   backdrop-filter: var(--blur);
+}
+.orgs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.org {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.org-name {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #404040;
+}
+.divider {
+  flex: none;
+  width: 1px;
+  height: 34px;
+  background: rgba(31, 42, 51, 0.35);
+}
+.logo {
+  height: 34px;
+  width: auto;
+  flex: none;
+}
+.lab-text {
+  height: 22px;
+  width: auto;
 }
 .brand {
   display: flex;
@@ -71,23 +109,19 @@ const ui = useUiStore()
 }
 .title {
   margin: 0;
-  font-size: clamp(15px, 2.2vw, 18px);
+  font-size: clamp(15px, 1.8vw, 18px);
   font-weight: 650;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.logos {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex-shrink: 0;
-}
 .info {
   display: grid;
   place-items: center;
+  flex: none;
   width: 40px;
   height: 40px;
+  margin-left: var(--space-2);
   border: 1px solid var(--c-border);
   border-radius: 50%;
   background: var(--c-surface);
@@ -97,26 +131,26 @@ const ui = useUiStore()
 .info:hover {
   box-shadow: var(--shadow-1);
 }
-.lab {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+/* narrow desktop: institute name only on one line */
+@media (max-width: 1279px) {
+  .org-name span + span {
+    display: none;
+  }
 }
-.logo {
-  height: 32px;
-  width: auto;
-}
-.lab-text {
-  height: 22px;
-  width: auto;
-}
-/* tablet: logos without captions; phone: institute icon only */
+/* tablet: logos without captions */
 @media (max-width: 1023px) {
+  .org-name,
   .lab-text {
     display: none;
   }
 }
+/* phone: institute emblem + title */
 @media (max-width: 599px) {
+  .header {
+    gap: var(--space-2);
+    padding: 0 var(--space-2) 0 var(--space-3);
+  }
+  .divider,
   .lab {
     display: none;
   }
@@ -124,8 +158,7 @@ const ui = useUiStore()
     height: 28px;
   }
   .icon {
-    width: 24px;
-    height: 24px;
+    display: none;
   }
 }
 </style>

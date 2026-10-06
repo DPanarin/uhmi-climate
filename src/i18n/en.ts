@@ -4,6 +4,7 @@ const en: typeof uk = {
   app: {
     title: 'Climate change in Ukraine',
     institute: 'Ukrainian Hydrometeorological Institute',
+    instituteSub: '',
     lab: 'River Systems Modelling Laboratory',
     loading: 'Loading…',
     loadError: 'Could not load data',
