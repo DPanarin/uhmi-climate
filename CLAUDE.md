@@ -15,7 +15,9 @@ A Vue 3 rebuild of https://climate.uhmi.org.ua/ for a presentation to the Ukrain
 5. Ask instead of guessing when the old site or API differs from the plan, when a choice changes scope,
    or when a phase runs more than 50% over its estimate.
 6. Keep it simple: unit tests (Vitest) only, no E2E, no CI, deploy = `npm run deploy`.
-7. Talk to the user in English, briefly (saves tokens). Code, comments and commit messages in English.
+7. Colours may be changed for readability (contrast, distinguishable classes) even where they differ from the
+   old site; list every such change under "Deviations" at the next checkpoint.
+8. Talk to the user in English, briefly (saves tokens). Code, comments and commit messages in English.
    UI text only via `src/i18n/{uk,en}`. The presentation package (P10) is in Ukrainian.
 
 ## Checkpoint report template

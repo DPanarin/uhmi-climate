@@ -38,6 +38,7 @@ _(date — decision — reason)_
 - 2026-10-06 — P4: legend is a continuous gradient bar with step ticks (the fill is continuous), not discrete swatches.
 - 2026-10-06 — P4: station labels use self-hosted glyphs (Open Sans Semibold, Latin + Cyrillic ranges, from the MapLibre demo font set) in `public/fonts/`.
 - 2026-10-06 — P3/P4: default view as on the old site (temperature, RCP8.5, year, 2011–2020) with oblasts. A temporary select panel (`DevSwitcher.vue`) switches the view until the P5 dialog replaces it.
+- 2026-10-06 — User rule for the whole project: colours may be changed for better readability; report each change at the checkpoint.
 - 2026-10-06 — Global npm 10.9 crashes on install; installs run via `npx npm@11` — npm bug, not project-specific.
 
 ## Open issues
